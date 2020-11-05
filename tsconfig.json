@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "jsx": "react",
+    "target": "ES6",
+    "moduleResolution": "Node",
+    "noImplicitAny": false,
+    "baseUrl": ".",
+    "paths": {
+      "dart-sass": ["node_modules/@types/node-sass"]
+    }
+  }
+}

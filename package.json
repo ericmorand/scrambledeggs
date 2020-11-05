@@ -1,0 +1,36 @@
+{
+  "name": "scrambledeggs",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/browser-sync": "^2.26.1",
+    "@types/browserify": "^12.0.36",
+    "@types/gaze": "^1.1.0",
+    "@types/node-sass": "^4.11.1",
+    "@types/react": "^16.9.55",
+    "@types/react-dom": "^16.9.9",
+    "broaderify": "^1.0.2",
+    "browser-sync": "^2.26.13",
+    "browserify": "^17.0.0",
+    "dart-sass": "^1.25.0",
+    "fs-extra": "^9.0.1",
+    "gaze": "^1.1.3",
+    "ts-node": "^9.0.0",
+    "tsify": "^5.0.2",
+    "twing": "^5.0.2",
+    "typescript": "^4.0.5"
+  },
+  "dependencies": {
+    "@types/fs-extra": "^9.0.3",
+    "react": "^17.0.1",
+    "react-dom": "^17.0.1",
+    "tsify2": "^0.1.0"
+  }
+}
