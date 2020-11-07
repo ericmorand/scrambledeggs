@@ -1,15 +1,26 @@
-export type Worker<I, O = I> = (input?: I | Promise<I>) => Promise<O>;
-export type WorkerFactory<P, I, O = I> = (properties: P) => Worker<I, O>;
+export type Worker<I, O = I> = (input: I | Promise<I>) => Promise<O>;
+export type WorkerFactory<P, I, O = I> = (properties?: P) => Worker<I, O>;
 
 // examples
-const add: WorkerFactory<number, number> = (a) => {
-    return (b) => {
-        return Promise.resolve(b).then((b) => {
-            return Promise.resolve(a + b);
+const aFactory: WorkerFactory<undefined, number> = () => {
+    return (a) => {
+        return Promise.resolve(a).then((a) => {
+            return a;
         });
-    }
+    };
+};
+
+const p: Worker<number> = (n) => {
+    return Promise.resolve(n).then((w) => {
+        return w + 5;
+    });
 }
 
-add(2)(3).then((r) => {
-    console.assert(r === 5);
-});
+const a = aFactory();
+
+const worker = p(a(5));
+
+worker.then((d) => {
+    console.log(d);
+})
+

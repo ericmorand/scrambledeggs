@@ -1,24 +1,31 @@
 import {render} from "dart-sass";
-import {WorkerFactory} from "./Worker";
 
 import type {Options} from "dart-sass";
-import type {BuildResult} from "./BuildResult";
+import type {StateWorkerFactory, StateInterface} from "./State";
 
-export const build: WorkerFactory<Omit<Options, 'file'>, string, BuildResult> = (options) => {
-    return (fileName) => {
-        return Promise.resolve(fileName).then((fileName) => {
-            options.file = fileName;
+export const buildSassFactory: StateWorkerFactory<Omit<Options, 'file'>> = (options) => {
+    return (state) => {
+        return Promise.resolve(state).then((state) => {
+            const renderOptions: Options = options;
 
-            return new Promise<BuildResult>((resolve, reject) => {
-                render(options, (error, result) => {
+            renderOptions.file = state.data[0].name;
+            renderOptions.outFile = options.outFile || 'index.css';
+
+            return new Promise<StateInterface>((resolve, reject) => {
+                render(renderOptions, (error, result) => {
                     if (error) {
                         reject(error);
                     } else {
-                        const {stats, css} = result;
+                        const {stats, css, map} = result;
 
                         return resolve({
-                            files: stats.includedFiles,
-                            data: css
+                            data: [{
+                                name: options.outFile,
+                                type: 'text/css',
+                                content: css,
+                                map: map
+                            }],
+                            dependencies: stats.includedFiles
                         });
                     }
                 })

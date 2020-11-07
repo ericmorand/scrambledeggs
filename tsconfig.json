@@ -3,10 +3,11 @@
     "jsx": "react",
     "target": "ES6",
     "moduleResolution": "Node",
-    "noImplicitAny": false,
+    "noImplicitAny": true,
     "baseUrl": ".",
     "paths": {
       "dart-sass": ["node_modules/@types/node-sass"]
-    }
+    },
+    "skipLibCheck": true
   }
 }

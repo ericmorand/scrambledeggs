@@ -8,7 +8,7 @@ render('Button Demo', [{
 }, {
     title: 'With a very long label',
     content: <ButtonTest
-        label="This is a very very very very very very very very very very very very very very very very very very very very very very very label"/>
+        label="This is a very very very very very very very very very very very very very very very very very very very very very very very long label"/>
 }]);
 
 

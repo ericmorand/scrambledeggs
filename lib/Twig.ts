@@ -1,19 +1,18 @@
 import {TwingEnvironment} from "twing";
 
 import type {TwingSource, TwingEnvironmentOptions, TwingLoaderInterface} from "twing"
-import type {WorkerFactory} from "./Worker";
-import type {BuildResult} from "./BuildResult";
+import type {DatumInterface, StateWorkerFactory} from "./State";
 
 export type Options = {
     environment: TwingEnvironmentOptions,
     loader: TwingLoaderInterface
 };
 
-export const build: WorkerFactory<Options, string, BuildResult> = (options) => {
-    const environment = new TwingEnvironment(options.loader, options.environment);
+export const buildTwigFactory: StateWorkerFactory<Options> = (options) => {
+    return (state) => {
+        const environment = new TwingEnvironment(options.loader, options.environment);
 
-    return (name) => {
-        return Promise.resolve(name).then((name) => {
+        return Promise.resolve(state).then((state) => {
             const filePromises: Array<Promise<string>> = [];
 
             const onTemplate = (name: string, from: TwingSource) => {
@@ -28,22 +27,33 @@ export const build: WorkerFactory<Options, string, BuildResult> = (options) => {
 
             environment.on('template', onTemplate);
 
-            return environment.loadTemplate(name)
-                .then((template) => {
-                    return template.render({
-                        applicationName: 'application'
-                    });
-                })
-                .then((data) => {
-                    environment.removeListener('template', onTemplate);
-
-                    return Promise.all(filePromises).then((files) => {
+            const renderPromises: Array<Promise<DatumInterface>> = state.data.map((datum) => {
+                return environment.loadTemplate(datum.name)
+                    .then((template) => {
+                        return template.render({
+                            applicationName: 'application'
+                        });
+                    })
+                    .then((data) => {
                         return {
-                            files,
-                            data: Buffer.from(data)
+                            name: 'index.html',
+                            type: 'text/html',
+                            content: Buffer.from(data),
+                            map: null
                         };
                     });
+            });
+
+            return Promise.all(renderPromises).then((data) => {
+                environment.removeListener('template', onTemplate);
+
+                return Promise.all(filePromises).then((dependencies) => {
+                    return {
+                        data,
+                        dependencies
+                    }
                 });
+            });
         });
     };
 };

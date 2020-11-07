@@ -1,61 +1,64 @@
 import * as Browserify from "browserify";
 import Tsify2 from "tsify2";
 
-import type {WorkerFactory} from "./Worker";
 import type {Options as BrowserifyOptions, BrowserifyObject} from "browserify";
 import type {Options as Tsify2Options} from "tsify2";
 import type {CompilerOptions} from "typescript";
-import type {BuildResult} from "./BuildResult";
+import type {DatumInterface, StateWorkerFactory} from "./State";
+
+export type PluginDefinition<T> = [(browserify: BrowserifyObject, opts: T) => any, T];
+export type TransformDefinition<T> = [(browserify: string, opts: T) => NodeJS.ReadWriteStream, T];
 
 export type Parameters = {
     compilerOptions: CompilerOptions,
-    bundlerOptions: BrowserifyOptions
-    bundlerPlugins?: Array<PluginDefinition<any>>,
-    bundlerTransforms?: Array<TransformDefinition<any>>,
+    bundlerOptions: BrowserifyOptions & {
+        plugin?: Array<PluginDefinition<any>>,
+        transform?: Array<TransformDefinition<any>>
+    }
 };
 
-export type PluginDefinition<T> = {
-    executor: (browserify: BrowserifyObject, opts: T) => any,
-    options: T
-};
-
-export type TransformDefinition<T> = {
-    executor: (browserify: string, opts: T) => NodeJS.ReadWriteStream,
-    options: T
-};
-
-export const build: WorkerFactory<Parameters, string, BuildResult> = (parameters) => {
-    const {compilerOptions, bundlerOptions, bundlerTransforms} = parameters;
+export const build: StateWorkerFactory<Parameters> = (parameters) => {
+    const {compilerOptions, bundlerOptions} = parameters;
 
     const tsify = Tsify2(compilerOptions);
 
-    return (path) => {
-        return Promise.resolve(path).then((path) => {
-            const files: Array<string> = [];
+    return (state) => {
+        return Promise.resolve(state).then((state) => {
+            const dependencies: Array<string> = [];
 
-            return new Promise((resolve, reject) => {
-                console.time('Bundling');
+            const renderPromises: Array<Promise<DatumInterface>> = state.data.map((datum) => {
+                return new Promise((resolve, reject) => {
+                    console.time('Bundling');
 
-                const browserify = Browserify(bundlerOptions)
-                    .plugin<Tsify2Options>(tsify, {})
-                    .on('file', (file) => {
-                        files.push(file);
-                    })
-                    .add(path);
+                    const browserify = Browserify(bundlerOptions)
+                        .plugin<Tsify2Options>(tsify, {})
+                        .on('file', (file) => {
+                            dependencies.push(file);
+                        })
+                        .add(datum.name);
 
-                for (let {executor, options} of bundlerTransforms) {
-                    browserify.transform(executor, options);
-                }
+                    browserify.bundle((error, data) => {
+                        console.timeEnd('Bundling');
 
-                browserify.bundle((error, data) => {
-                    console.timeEnd('Bundling');
+                        if (error) {
+                            reject(error);
+                        }
 
-                    if (error) {
-                        reject(error);
-                    }
-
-                    resolve({files, data});
+                        resolve({
+                            name: 'index.js',
+                            type: 'text/javascript',
+                            content: data,
+                            map: null
+                        });
+                    });
                 });
+            });
+
+            return Promise.all(renderPromises).then((data) => {
+                return {
+                    data,
+                    dependencies
+                }
             });
         });
     };
