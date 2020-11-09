@@ -1,0 +1,29 @@
+@use "test";
+@use "src/viewport" as viewport;
+
+@mixin _match() {
+  &:before {
+    content: "MATCH";
+    background-color: orange;
+    color: black;
+  }
+}
+
+.viewport-test {
+  &:before {
+    content: "NO MATCH";
+    display: block;
+  }
+
+  &[data-viewport=small] {
+    @include viewport.small {
+      @include _match;
+    }
+  }
+
+  &[data-viewport=large] {
+    @include viewport.large {
+      @include _match;
+    }
+  }
+}

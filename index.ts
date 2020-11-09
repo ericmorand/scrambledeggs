@@ -10,10 +10,10 @@ import {Component} from "./lib/Component";
 import {watchFactory} from "./lib/Watch";
 import {reloadFactory, serveFactory} from "./lib/Serve";
 import {readFileSync as readTsConfigFile} from "tsconfig";
+import broaderify from "broaderify";
 
 import type {StateInterface} from "./lib/State";
-
-const broaderify = require("broaderify");
+import type {Options as BroaderifyOptions} from "broaderify";
 
 // typeScript
 const typeScriptConfig = parseJsonConfigFileContent(readTsConfigFile('./tsconfig.json'), sys, './');
@@ -24,17 +24,22 @@ const buildTypeScript = buildTypeScriptFactory({
         extensions: ['.tsx', '.ts'],
         debug: true,
         transform: [
-            [broaderify, {
+            <[any, BroaderifyOptions]>[broaderify, {
                 global: true,
                 loaders: [{
                     filter: /node_modules\/react\/index.js/,
-                    worker: (module: string, content: string, done: (content: string) => void) => {
-                        done('module.exports = require(\'./cjs/react.production.min.js\');');
+                    worker: (module, content, done) => {
+                        done(Buffer.from('module.exports = require(\'./cjs/react.production.min.js\');'));
                     }
                 }, {
                     filter: /node_modules\/react-dom\/index.js/,
-                    worker: (module: string, content: string, done: (content: string) => void) => {
-                        done('module.exports = require(\'./cjs/react-dom.production.min.js\');');
+                    worker: (module, content, done) => {
+                        done(Buffer.from('module.exports = require(\'./cjs/react-dom.production.min.js\');'));
+                    }
+                }, {
+                    filter: /node_modules\/scheduler\/index.js/,
+                    worker: (module, content, done) => {
+                        done(Buffer.from('module.exports = require(\'./cjs/scheduler.production.min.js\');'));
                     }
                 }]
             }]
@@ -46,6 +51,7 @@ const buildTypeScript = buildTypeScriptFactory({
 const filesystemLoader = new TwingLoaderFilesystem('.');
 
 filesystemLoader.addPath('lib', 'Lib');
+filesystemLoader.addPath('test', 'Test');
 
 const loader = new TwingLoaderChain([
     new TwingLoaderRelativeFilesystem(),
@@ -101,7 +107,7 @@ const processTwigComponent: Worker<string, StateInterface> = (componentName) => 
     });
 };
 
-const componentName: string = 'button';
+const componentName: string = 'viewport';
 
 Promise.all([
     processTypeScriptComponent(componentName),

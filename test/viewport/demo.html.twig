@@ -1,0 +1,25 @@
+{% extends "@Lib/demo.html.twig" %}
+
+{% block head %}
+    <title>Viewport Demo</title>
+    {{ parent() }}
+{% endblock %}
+
+{% block body %}
+    {% set tests = [] %}
+
+    {% for viewport in ['small', 'large'] %}
+        {% set content %}
+            <div class="viewport-test" data-viewport="{{ viewport }}"></div>
+        {% endset %}
+
+        {% set tests = tests|merge([{
+            title: viewport,
+            content: content
+        }])%}
+    {% endfor %}
+    {{ include("@Test/index.html.twig", {
+        title: "Viewport Demo",
+        tests: tests
+    }, true) }}
+{% endblock %}

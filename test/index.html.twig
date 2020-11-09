@@ -1,0 +1,15 @@
+<div class="demo">
+    <h1>{{ title }}</h1>
+    <div class="tests">
+        {% for test in tests %}
+            {% with test %}
+            <div class="test">
+                <header>{{ title }}</header>
+                <div class="content">
+                    {{ content }}
+                </div>
+            </div>
+            {% endwith %}
+        {% endfor %}
+    </div>
+</div>

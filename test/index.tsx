@@ -34,6 +34,10 @@ class Demo extends Component<DemoProperties> {
 
 export const render = (title: string, tests: Array<TestDefinition>) => {
     document.addEventListener('DOMContentLoaded', () => {
-        reactRender(<Demo title={title} tests={tests}/>, document.getElementById('application'));
+        const element = document.getElementById('application');
+
+        if (element) {
+            reactRender(<Demo title={title} tests={tests}/>, element);
+        }
     });
 };
