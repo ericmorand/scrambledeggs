@@ -21,6 +21,12 @@
     }
   }
 
+  &[data-viewport=medium] {
+    @include viewport.medium {
+      @include _match;
+    }
+  }
+
   &[data-viewport=large] {
     @include viewport.large {
       @include _match;

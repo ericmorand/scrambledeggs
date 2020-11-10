@@ -6,7 +6,7 @@
     "noImplicitAny": true,
     "baseUrl": ".",
     "paths": {
-      "dart-sass": ["node_modules/@types/node-sass"]
+      "sass": ["node_modules/@types/node-sass"]
     },
     "skipLibCheck": true
   }

@@ -1,7 +1,8 @@
 @use "src/util" as util;
 
 $viewports: (
-  small: 768,
+  small: 480,
+  medium: 768,
   large: 1280
 );
 
@@ -53,6 +54,12 @@ $viewports: (
 
 @mixin small($type: screen) {
   @include _viewport(small, $type) {
+    @content;
+  }
+}
+
+@mixin medium($type: screen) {
+  @include _viewport(medium, $type) {
     @content;
   }
 }
