@@ -8,6 +8,8 @@ export const writeFactory: StateWorkerFactory<string> = (destination) => {
         return Promise.resolve(state).then((state) => {
             const outputPromises = state.data.map((state) => {
                 return new Promise((resolve, reject) => {
+                    console.log('WRITE', state.name);
+
                     outputFile(joinPath(destination, state.name), state.content, (error) => {
                         if (error) {
                             reject(error);

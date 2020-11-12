@@ -10,6 +10,8 @@ export interface DatumInterface {
 export interface StateInterface {
     data: Array<DatumInterface>;
     dependencies: Array<string>;
+    parent?: StateInterface;
+    error?: Error;
 }
 
 export type StateWorker = Worker<StateInterface>;

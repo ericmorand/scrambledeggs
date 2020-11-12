@@ -5,33 +5,33 @@ import {join as joinPath, resolve as resolvePath} from "path";
 import {TwingLoaderChain, TwingLoaderFilesystem, TwingLoaderRelativeFilesystem} from "twing";
 import {parseJsonConfigFileContent, sys} from "typescript";
 import {writeFactory} from "./lib/Write";
-import {Worker} from "./lib/Worker";
+import {Worker, WorkerFactory} from "./lib/Worker";
 import {Component} from "./lib/Component";
 import {watchFactory} from "./lib/Watch";
 import {reloadFactory, serveFactory} from "./lib/Serve";
 import {readFileSync as readTsConfigFile} from "tsconfig";
 import broaderify from "broaderify";
-import {america, bgWhite, bgYellow, black, yellow, zalgo} from 'colors/safe'
+import {america, bgWhite, bgYellow, black, red, yellow, zalgo} from 'colors/safe'
 import * as yargs from "yargs";
 import {Generator} from "./lib/commands/scaffold/component";
 import {Generator as TestGenerator} from "./lib/commands/scaffold/test";
 
 const generator = new Generator();
 
-generator.prompt()
-    .then((answers) => {
-        console.log(answers);
+// generator.prompt()
+//     .then((answers) => {
+//         console.log(answers);
+//
+//         return generator.write(answers).then(() => {
+//             const testGenerator = new TestGenerator();
+//
+//             return testGenerator.write({
+//                 name: answers.name
+//             });
+//         });
+//     });
 
-        return generator.write(answers).then(() => {
-            const testGenerator = new TestGenerator();
-
-            return testGenerator.write({
-                name: answers.name
-            });
-        });
-    });
-
-import type {StateInterface} from "./lib/State";
+import type {StateInterface, StateWorker} from "./lib/State";
 import type {Options as BroaderifyOptions} from "broaderify";
 
 // typeScript
@@ -93,6 +93,37 @@ const buildSass = buildSassFactory({
     outFile: 'index.css'
 });
 
+const maestro: (state: StateInterface) => (...workers: Array<StateWorker>) => Promise<StateInterface> = (state) => {
+    return (...workers) => {
+        return Promise.resolve(workers).then((workers) => {
+            return new Promise<StateInterface>((resolve) => {
+                const process = (state: StateInterface): void => {
+                    const worker = workers.shift();
+                    const parent: StateInterface = state;
+
+                    if (worker) {
+                        worker(state)
+                            .then((state) => {
+                                state.parent = parent;
+
+                                if (state.error) {
+                                    resolve(state);
+                                }
+                                else {
+                                    return process(state);
+                                }
+                            });
+                    } else {
+                        resolve(state);
+                    }
+                }
+
+                process(state);
+            });
+        });
+    }
+};
+
 const processSassComponent: Worker<string, StateInterface> = (componentName) => {
     return Promise.resolve(componentName).then((componentName) => {
         const component = new Component(componentName, `test/${componentName}/demo.scss`, 'text/x-scss');
@@ -100,7 +131,13 @@ const processSassComponent: Worker<string, StateInterface> = (componentName) => 
         const reload = reloadFactory({component, entry: 'index.css'});
         const watch = watchFactory(() => processSassComponent(componentName));
 
-        return watch(reload(write(buildSass(component.state))));
+        return maestro(component.state)(buildSass, write).then((state) => {
+            if (state.error) {
+                console.log(red(state.error.message));
+            }
+
+            return maestro(state)(reload, watch);
+        });
     });
 };
 

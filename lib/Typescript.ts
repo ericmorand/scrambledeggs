@@ -28,8 +28,6 @@ export const build: StateWorkerFactory<Parameters> = (parameters) => {
 
             const renderPromises: Array<Promise<DatumInterface>> = state.data.map((datum) => {
                 return new Promise((resolve, reject) => {
-                    console.time('Bundling');
-
                     const browserify = Browserify(bundlerOptions)
                         .plugin<Tsify2Options>(tsify, {})
                         .on('file', (file) => {
@@ -38,8 +36,6 @@ export const build: StateWorkerFactory<Parameters> = (parameters) => {
                         .add(datum.name);
 
                     browserify.bundle((error, data) => {
-                        console.timeEnd('Bundling');
-
                         if (error) {
                             reject(error);
                         }

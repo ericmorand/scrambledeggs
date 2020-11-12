@@ -1,6 +1,7 @@
 import {Gaze} from "gaze";
+import * as ora from "ora";
 
-import type {StateWorkerFactory} from "./State";
+import type {StateInterface, StateWorkerFactory} from "./State";
 
 interface GazeEventEmitter {
     on(event: 'changed', listener: (filepath: string) => void): this;
@@ -8,7 +9,7 @@ interface GazeEventEmitter {
     on(event: 'all', listener: (event: 'added' | 'changed' | 'renamed' | 'deleted', filepath: string) => void): this;
 }
 
-export type WatchFactoryParameters = () => void;
+export type WatchFactoryParameters = () => Promise<StateInterface>;
 
 export const watchFactory: StateWorkerFactory<WatchFactoryParameters> = (callback) => {
     return (state) => {

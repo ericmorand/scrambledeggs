@@ -25,7 +25,8 @@ export const serveFactory: StateWorkerFactory<ServeFactoryParameters> = ({compon
                     server: joinPath('www', component.name),
                     ui: false,
                     open: false,
-                    notify: false
+                    notify: false,
+                    logLevel: 'silent'
                 };
 
                 browserSync.init(browserSyncConfig, () => {
