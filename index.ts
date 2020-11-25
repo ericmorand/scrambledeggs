@@ -1,20 +1,21 @@
 import {build as buildTypeScriptFactory} from "./lib/Typescript";
 import {buildTwigFactory} from "./lib/Twig";
 import {buildSassFactory} from "./lib/Sass";
-import {join as joinPath, resolve as resolvePath} from "path";
+import {join as joinPath} from "path";
 import {TwingLoaderChain, TwingLoaderFilesystem, TwingLoaderRelativeFilesystem} from "twing";
 import {parseJsonConfigFileContent, sys} from "typescript";
 import {writeFactory} from "./lib/Write";
-import {Worker, WorkerFactory} from "./lib/Worker";
+import {Worker} from "./lib/Worker";
 import {Component} from "./lib/Component";
 import {watchFactory} from "./lib/Watch";
 import {reloadFactory, serveFactory} from "./lib/Serve";
 import {readFileSync as readTsConfigFile} from "tsconfig";
+import type {Options as BroaderifyOptions} from "broaderify";
 import broaderify from "broaderify";
-import {america, bgWhite, bgYellow, black, red, yellow, zalgo} from 'colors/safe'
+import {red} from 'colors/safe'
 import * as yargs from "yargs";
 import {Generator} from "./lib/commands/scaffold/component";
-import {Generator as TestGenerator} from "./lib/commands/scaffold/test";
+import type {StateInterface, StateWorker} from "./lib/State";
 
 const generator = new Generator();
 
@@ -30,9 +31,6 @@ const generator = new Generator();
 //             });
 //         });
 //     });
-
-import type {StateInterface, StateWorker} from "./lib/State";
-import type {Options as BroaderifyOptions} from "broaderify";
 
 // typeScript
 const typeScriptConfig = parseJsonConfigFileContent(readTsConfigFile('./tsconfig.json'), sys, './');
@@ -95,66 +93,90 @@ const buildSass = buildSassFactory({
 
 const maestro: (state: StateInterface) => (...workers: Array<StateWorker>) => Promise<StateInterface> = (state) => {
     return (...workers) => {
-        return Promise.resolve(workers).then((workers) => {
-            return new Promise<StateInterface>((resolve) => {
-                const process = (state: StateInterface): void => {
-                    const worker = workers.shift();
+        return new Promise<StateInterface>((resolve) => {
+            const process = (state: StateInterface): void => {
+                const worker = workers.shift();
+
+                if (worker) {
                     const parent: StateInterface = state;
 
-                    if (worker) {
-                        worker(state)
-                            .then((state) => {
+                    worker(state)
+                        .then((state) => {
+                            // if the previous state was returned by the worker, we ignore it
+                            if (state !== parent) {
                                 state.parent = parent;
 
                                 if (state.error) {
+                                    console.log(red(state.error.message));
+
                                     resolve(state);
-                                }
-                                else {
+                                } else {
                                     return process(state);
                                 }
-                            });
-                    } else {
-                        resolve(state);
-                    }
+                            }
+                            else {
+                                return process(state);
+                            }
+                        });
+                } else {
+                    resolve(state);
                 }
+            }
 
-                process(state);
-            });
+            process(state);
         });
     }
 };
 
 const processSassComponent: Worker<string, StateInterface> = (componentName) => {
     return Promise.resolve(componentName).then((componentName) => {
-        const component = new Component(componentName, `test/${componentName}/demo.scss`, 'text/x-scss');
+        const component = new Component(componentName, `test/Component/${componentName}/demo.scss`, 'text/x-scss');
         const write = writeFactory(joinPath('www', component.name));
         const reload = reloadFactory({component, entry: 'index.css'});
         const watch = watchFactory(() => processSassComponent(componentName));
+        const cleanDependencies: StateWorker = (state) => {
+            return Promise.resolve(state).then((state) => {
+                return {
+                    name: Symbol('Clean SASS Dependencies'),
+                    dependencies: state.dependencies.filter((dependency) => {
+                        return typeof dependency === 'string';
+                    }),
+                    data: state.data
+                }
+            });
+        };
 
-        return maestro(component.state)(buildSass, write).then((state) => {
-            if (state.error) {
-                console.log(red(state.error.message));
-            }
-
-            return maestro(state)(reload, watch);
+        return maestro(component.state)(buildSass).then((state) => {
+            return maestro(state)(cleanDependencies, write, reload, watch);
         });
     });
 };
 
 const processTypeScriptComponent: Worker<string, StateInterface> = (componentName) => {
     return Promise.resolve(componentName).then((componentName) => {
-        const component = new Component(componentName, `test/${componentName}/demo.tsx`, 'text/x-typescript');
+        const component = new Component(componentName, `test/Component/${componentName}/demo.tsx`, 'text/x-typescript');
         const write = writeFactory(joinPath('www', component.name));
         const reload = reloadFactory({component, entry: 'index.js'});
         const watch = watchFactory(() => processTypeScriptComponent(componentName));
+        const cleanDependencies: StateWorker = (state) => {
+            return Promise.resolve(state).then((state) => {
+                return {
+                    name: Symbol('Clean Dependencies'),
+                    dependencies: state.dependencies.filter((dependency) => {
+                        return !/^(?:.*)\.d\.ts$/.test(dependency);
+                    }),
+                    data: state.data
+                }
+            });
+        };
 
-        return watch(reload(write(buildTypeScript(component.state))));
+        return watch(reload(write(cleanDependencies(buildTypeScript(component.state)))));
     });
 };
 
 const processTwigComponent: Worker<string, StateInterface> = (componentName) => {
     return Promise.resolve(componentName).then((componentName) => {
-        const component = new Component(componentName, `test/${componentName}/demo.html.twig`, 'text/x-twig');
+        const component = new Component(componentName, `test/Component/${componentName}/demo.html.twig`, 'text/x-twig');
         const write = writeFactory(joinPath('www', component.name));
         const serve = serveFactory({component, entry: 'index.html'});
         const watch = watchFactory(() => processTwigComponent(componentName));
@@ -167,7 +189,19 @@ const serve = (componentName: string): Promise<StateInterface> => {
     return Promise.all([
         processTypeScriptComponent(componentName),
         processSassComponent(componentName)
-    ]).then(() => {
+    ]).then((states) => {
+        // const f = (state: StateInterface) => {
+        //     console.log(state.name);
+        //
+        //     if (state.parent) {
+        //         f(state.parent);
+        //     }
+        // };
+        //
+        // for (let state of states) {
+        //     f(state);
+        // }
+
         return processTwigComponent(componentName);
     });
 }
@@ -187,8 +221,6 @@ yargs
         },
         handler: (argv) => {
             if (argv.component) {
-                console.log(argv);
-
                 serve(argv.component);
             }
         }

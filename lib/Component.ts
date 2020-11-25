@@ -17,6 +17,7 @@ export class Component {
 
     get state(): StateInterface {
         return {
+            name: Symbol(this.name),
             data: [{
                 name: this._path,
                 type: this._type,

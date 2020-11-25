@@ -1,5 +1,4 @@
 import {Gaze} from "gaze";
-import * as ora from "ora";
 
 import type {StateInterface, StateWorkerFactory} from "./State";
 

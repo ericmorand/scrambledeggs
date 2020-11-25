@@ -8,6 +8,8 @@ export type Options = {
     loader: TwingLoaderInterface
 };
 
+export const stateName = Symbol('Twig');
+
 export const buildTwigFactory: StateWorkerFactory<Options> = (options) => {
     return (state) => {
         const environment = new TwingEnvironment(options.loader, options.environment);
@@ -49,6 +51,7 @@ export const buildTwigFactory: StateWorkerFactory<Options> = (options) => {
 
                 return Promise.all(filePromises).then((dependencies) => {
                     return {
+                        name: stateName,
                         data,
                         dependencies
                     }

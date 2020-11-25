@@ -1,28 +1,27 @@
 import {outputFile} from "fs-extra";
 import {join as joinPath} from "path";
 
-import type {StateWorkerFactory} from "./State";
+import type {DatumInterface, StateWorkerFactory} from "./State";
 
 export const writeFactory: StateWorkerFactory<string> = (destination) => {
     return (state) => {
         return Promise.resolve(state).then((state) => {
-            const outputPromises = state.data.map((state) => {
-                return new Promise((resolve, reject) => {
-                    console.log('WRITE', state.name);
-
-                    outputFile(joinPath(destination, state.name), state.content, (error) => {
+            const outputPromises = state.data.map((datum) => {
+                return new Promise<DatumInterface>((resolve, reject) => {
+                    outputFile(joinPath(destination, datum.name), datum.content, (error) => {
                         if (error) {
                             reject(error);
                         } else {
-                            resolve(state);
+                            resolve(datum);
                         }
                     });
                 });
             });
 
-            return Promise.all(outputPromises).then(() => {
-               return state;
-            });
+            return Promise.all(outputPromises)
+                .then(() => {
+                    return state;
+                });
         });
     }
 };

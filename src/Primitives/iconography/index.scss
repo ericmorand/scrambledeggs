@@ -1,0 +1,10 @@
+@use "node_modules/rtl-sass/src/api" as rtl;
+
+@mixin icon($name, $textDirectionAware: false) {
+  content: "#{$name}";
+  display: inline-block;
+
+  @if ($textDirectionAware) {
+    @include rtl.rtl-sass-declaration(transform, none, scale(-1, 1));
+  }
+}

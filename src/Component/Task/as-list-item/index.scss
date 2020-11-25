@@ -1,0 +1,71 @@
+@use "src/Primitives/button" as button;
+@use "src/Primitives/viewport" as viewport;
+
+@mixin task-as-list-item() {
+  border: solid 2px orangered;
+
+  .header, .details {
+    padding: 1.0em;
+  }
+
+  .header {
+    background-color: lightgoldenrodyellow;
+    display: flex;
+    flex-direction: column;
+
+    @include viewport.medium() {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .title {
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+
+    .actions {
+      flex-shrink: 0;
+      margin-top: 1em;
+
+      @include viewport.medium() {
+        margin-top: 0;
+      }
+      }
+  }
+
+  .details {
+    border-top: solid 1px orangered;
+  }
+
+  .message {
+    margin-top: 1em;
+  }
+
+  .actions {
+    .action {
+      display: inline-block;
+
+      + .action {
+        margin-left: 1em;
+      }
+
+      > a {
+        text-decoration: none;
+
+        &.primary-action {
+          @include button.primary;
+        }
+
+        &.secondary-action {
+          @include button.secondary;
+        }
+      }
+    }
+  }
+}
+
+.task[data-view-mode="list-item"] {
+  @include task-as-list-item;
+}

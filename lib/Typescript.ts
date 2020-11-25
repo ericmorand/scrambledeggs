@@ -9,6 +9,8 @@ import type {DatumInterface, StateWorkerFactory} from "./State";
 export type PluginDefinition<T> = [(browserify: BrowserifyObject, opts: T) => any, T];
 export type TransformDefinition<T> = [(browserify: string, opts: T) => NodeJS.ReadWriteStream, T];
 
+export const stateName = Symbol('TypeScript');
+
 export type Parameters = {
     compilerOptions: CompilerOptions,
     bundlerOptions: BrowserifyOptions & {
@@ -52,6 +54,7 @@ export const build: StateWorkerFactory<Parameters> = (parameters) => {
 
             return Promise.all(renderPromises).then((data) => {
                 return {
+                    name: stateName,
                     data,
                     dependencies
                 }

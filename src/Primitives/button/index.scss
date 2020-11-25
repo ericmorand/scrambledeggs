@@ -1,0 +1,17 @@
+@mixin _button() {
+  color: blanchedalmond;
+  background-color: orangered;
+  border: none;
+  padding: 0.5em 1em;
+  display: inline-block;
+}
+
+@mixin primary() {
+  @include _button;
+}
+
+@mixin secondary() {
+  @include _button;
+  color: black;
+  background-color: blanchedalmond;
+}

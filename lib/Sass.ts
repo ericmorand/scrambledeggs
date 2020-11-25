@@ -3,6 +3,8 @@ import {render} from "sass";
 import type {Options} from "sass";
 import type {StateWorkerFactory, StateInterface} from "./State";
 
+export const stateName = Symbol('SASS');
+
 export const buildSassFactory: StateWorkerFactory<Omit<Options, 'file'>> = (options) => {
     return (state) => {
         return Promise.resolve(state).then((state) => {
@@ -16,24 +18,33 @@ export const buildSassFactory: StateWorkerFactory<Omit<Options, 'file'>> = (opti
                 render(renderOptions, ((error, result) => {
                     if (error) {
                         resolve({
-                            data: [],
+                            name: stateName,
+                            data: [{
+                                name: options.outFile,
+                                type: 'text/css',
+                                content: Buffer.from(''),
+                                map: null
+                            }],
                             dependencies: [
                                 renderOptions.file,
                                 error.file
                             ],
+                            parent: state,
                             error: error
                         })
                     } else {
                         const {css, map, stats} = result;
 
                         resolve({
+                            name: stateName,
                             data: [{
                                 name: options.outFile,
                                 type: 'text/css',
                                 content: css,
                                 map: map
                             }],
-                            dependencies: stats.includedFiles
+                            dependencies: stats.includedFiles,
+                            parent: state
                         });
                     }
                 }));

@@ -8,6 +8,7 @@ export interface DatumInterface {
 }
 
 export interface StateInterface {
+    name: Symbol,
     data: Array<DatumInterface>;
     dependencies: Array<string>;
     parent?: StateInterface;

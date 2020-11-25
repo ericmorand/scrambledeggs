@@ -1,0 +1,67 @@
+@use "src/Primitives/button" as button;
+
+@mixin task-as-card() {
+  border-color: rgba(black, 0.5);
+  border: solid 1px;
+  background-image: url(assets/pattern.png);
+  background-size: 75%;
+  background-repeat: repeat;
+  position: relative;
+
+  &:before {
+    background-color: rgba(yellow, 0.5);
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 0;
+  }
+
+  .content {
+    position: relative;
+    z-index: 1;
+  }
+
+  .header, .message, .actions {
+    padding: 1em;
+  }
+
+  .header {
+    border-bottom: solid 1px;
+    font-weight: bold;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  .actions {
+    border-top: solid 1px;
+    text-align: right;
+
+    .action {
+      display: inline-block;
+
+      + .action {
+        margin-left: 1em;
+      }
+
+      > a {
+        text-decoration: none;
+
+        &.primary-action {
+          @include button.primary;
+        }
+
+        &.secondary-action {
+          @include button.secondary;
+        }
+      }
+    }
+  }
+}
+
+.task[data-view-mode="card"] {
+  @include task-as-card;
+}
