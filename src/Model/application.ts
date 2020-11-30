@@ -6,7 +6,12 @@ import {TaskInterface} from "./task";
 import type {EntityProperties} from "./entity";
 import {DocumentInterface} from "./document";
 
-type Status = 'draft' | 'pending' | 'ongoing' | 'done';
+export const DRAFT_STATUS = Symbol('draft');
+export const PENDING_STATUS = Symbol('pending');
+export const ONGOING_STATUS = Symbol('ongoing');
+export const DONE_STATUS = Symbol('done');
+
+export type Status = typeof DRAFT_STATUS | typeof PENDING_STATUS | typeof ONGOING_STATUS | typeof DONE_STATUS;
 
 export interface ApplicationInterface extends EntityInterface {
     service: ServiceInterface;
@@ -73,16 +78,16 @@ export class Application extends Entity<ApplicationProperties> implements Applic
         let status: Status;
 
         if (this.depositDate == undefined) {
-            status = 'draft';
+            status = DRAFT_STATUS;
         }
         else if (this.treatmentDate === undefined) {
-            status = 'pending';
+            status = PENDING_STATUS;
         }
         else if (this.completionDate === undefined) {
-            status = 'ongoing';
+            status = ONGOING_STATUS;
         }
         else {
-            status = 'done';
+            status = DONE_STATUS;
         }
 
         return status;
@@ -91,7 +96,7 @@ export class Application extends Entity<ApplicationProperties> implements Applic
     get subStatus() {
         let status: string;
 
-        if (this.status === 'ongoing') {
+        if (this.status === ONGOING_STATUS) {
             const pendingTasks = this.tasks.filter((task) => {
                 return task.completionDate === undefined;
             }).sort((a, b) => {

@@ -20,6 +20,11 @@ export class TaskAsCard extends Task {
                         <a href="https://example.com" target="_blank" className="secondary-action">Do something else</a>
                     </div>
                 </div>
+                {this.task.dueDate ? <div className="footer">
+                    <div className="due-date">
+                        <span>{this.task.dueDate.toLocaleString()}</span>
+                    </div>
+                </div> : ''}
             </div>
         </div>;
     }

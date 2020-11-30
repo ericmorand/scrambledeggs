@@ -20,9 +20,7 @@ export class PinBoard extends Component<PinBoardProperties> {
     render() {
         return <div className="pin-board">
             <div className="pins">
-                <div className="inner">
-                    {this.pins}
-                </div>
+                {this.pins}
             </div>
         </div>;
     }

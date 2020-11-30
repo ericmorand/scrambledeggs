@@ -1,5 +1,5 @@
 import type {TaskInterface} from "../../../src/Model/task";
-import {createMock} from "./mocks";
+import {createMock} from "../../Model/task/mocks";
 
 type TaskTestCase = {
   title: string;

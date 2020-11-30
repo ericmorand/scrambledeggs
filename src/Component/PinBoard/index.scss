@@ -1,4 +1,5 @@
-@use "src/Primitives/viewport" as viewport;
+@use "src/Primitives/viewport" as Viewport;
+@use "src/Primitives/grid" as Grid;
 
 @mixin pinBoard() {
   background-image: url(assets/background.jpg);
@@ -7,27 +8,26 @@
   border: solid 2px firebrick;
 
   .pins {
-    > .inner {
-      overflow-x: auto;
-      display: flex;
-      flex-direction: row;
-      align-items: start;
-      flex-wrap: wrap;
-    }
+    @include Grid.grid;
+    padding: 1.0em;
   }
 
   .pin {
-    padding: 1em;
     box-sizing: border-box;
-    max-width: 100%;
+    box-shadow: 0.5em 0.5em 1em rgba(black, 0.5);
+    @include Grid.element(1);
 
-    > * {
-      box-shadow: 0.5em 0.5em 1em rgba(black, 0.5);
+    @include Viewport.small() {
+      display: inline-block;
+      @include Grid.element(2);
     }
 
-    @include viewport.medium() {
-      display: inline-block;
-      width: percentage(1/4);
+    @include Viewport.medium() {
+      @include Grid.element(3);
+    }
+
+    @include Viewport.large() {
+      @include Grid.element(4, 1);
     }
   }
 }

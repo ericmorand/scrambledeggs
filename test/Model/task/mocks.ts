@@ -3,11 +3,12 @@ import {TaskInterface, TaskProperties} from "../../../src/Model/task";
 export const createMock = (properties: Partial<TaskProperties> = {}): TaskInterface => {
     return {
         title: properties.title || 'Task title',
-        message: properties.message || 'Hell is not the outer mineral of the source.'.repeat(Math.ceil(Math.random() * 10)),
+        message: properties.message || 'Hell is not the outer mineral of the source. '.repeat(Math.ceil(Math.random() * 10)).trimEnd(),
         identifier: properties.identifier || `${Math.random()}`,
         creationDate: properties.creationDate || new Date(),
         completionDate: properties.completionDate || undefined,
-        application: properties.application || undefined
+        application: properties.application || undefined,
+        dueDate: Math.random() > 0.5 ? new Date() : undefined
     }
 };
 
