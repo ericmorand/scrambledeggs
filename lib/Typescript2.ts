@@ -1,83 +1,241 @@
-import type {BrowserifyObject, Options as BrowserifyOptions} from "browserify";
-import Transform from "tsify2/dist/lib/Transform";
-import type {CompilerOptions} from "typescript";
-import type {DatumInterface, StateWorkerFactory} from "./State";
-import {EventEmitter} from "events";
+import {lstatSync} from "fs";
 
-export type PluginDefinition<T> = [(browserify: BrowserifyObject, opts: T) => any, T];
-export type TransformDefinition<T> = [(browserify: string, opts: T) => NodeJS.ReadWriteStream, T];
+import type {DatumInterface, StateWorkerFactory} from "./State";
+import type {CompilerOptions, Diagnostic} from "typescript";
+import {
+    CompilerHost,
+    createIncrementalCompilerHost,
+    createIncrementalProgram,
+    EmitAndSemanticDiagnosticsBuilderProgram,
+    SourceFile
+} from "typescript";
 
 export const stateName = Symbol('TypeScript');
+export const type = 'text/x-typescript';
 
-export type Parameters = {
-    compilerOptions: CompilerOptions,
-    bundlerOptions: BrowserifyOptions & {
-        plugin?: Array<PluginDefinition<any>>,
-        transform?: Array<TransformDefinition<any>>
-    }
+/**
+ * @internal
+ */
+type CompiledFileOutput = {
+    fileName: string,
+    content: string
 };
 
-export const build: StateWorkerFactory<Parameters> = (parameters) => {
-    const {compilerOptions, bundlerOptions} = parameters;
+/**
+ * @internal
+ */
+class CompiledFile {
+    private _etag: number;
+    private _source: SourceFile;
+    private _output: CompiledFileOutput;
 
-    const eventEmitter = new EventEmitter;
-    const transform = Transform(compilerOptions, eventEmitter);
+    set etag(value: number) {
+        this._etag = value;
+    }
 
+    get etag(): number {
+        return this._etag;
+    }
+
+    set source(value: SourceFile) {
+        this._source = value;
+    }
+
+    get source(): SourceFile {
+        return this._source;
+    }
+
+    set output(value: CompiledFileOutput) {
+        this._output = value;
+    }
+
+    get output(): CompiledFileOutput {
+        return this._output;
+    }
+}
+
+let tsBuildInfo: string;
+
+export type Options = {
+    compilerOptions: CompilerOptions,
+    cache: Map<string, CompiledFile>
+};
+
+export const build: StateWorkerFactory<Options> = (options) => {
     return (state) => {
+        console.time('TS2');
+
+        const {compilerOptions, cache} = options;
+
+        /**
+         * TypeScript refuses to emit files that have the same path as their source.
+         * It means that JavaScript files are not emitted if outDir is not set.
+         */
+        compilerOptions.outDir = '|tsify|';
+
+        const isTypeScript = (fileName: string): boolean => {
+            return (/\.tsx?$/i).test(fileName);
+        };
+
+        const isJavaScript = (fileName: string): boolean => {
+            return (/\.jsx?$/i).test(fileName);
+        };
+
         return Promise.resolve(state).then((state) => {
-            const dependencies: Array<string> = [];
-            const results: Array<DatumInterface> = [];
+            for (let datum of state.data) {
+                if (datum.type === type) {
+                    const fileName = datum.name;
+                    const host = createIncrementalCompilerHost(compilerOptions);
 
-            const renderPromises: Array<Promise<DatumInterface>> = state.data.map((datum) => {
+                    const stateData: Array<DatumInterface> = [];
+                    const stateDependencies: Array<string> = [
+                        datum.name
+                    ];
 
-                const filesEncountered: Array<string> = [];
+                    /**
+                     * Write or update the cache
+                     */
+                    host.writeFile = (destinationFileName, data, writeByteOrderMark, onError, sourceFiles) => {
 
-                return new Promise((resolve, reject) => {
-                    eventEmitter.on('file', (file: string) => {
-                        if (!filesEncountered.includes(file)) {
-                            filesEncountered.push(file);
+                        if (isBuildInfoFile(destinationFileName)) {
+                            // noop, not supported
+                            tsBuildInfo = data;
+                        } else {
+                            const writeFile = (fileName: string) => {
+                                let compiledFile: CompiledFile;
 
-                            console.log(file);
+                                compiledFile = getCompiledFile(fileName);
 
-                            if (!/^(?:.*)\.d\.ts$/.test(file)) {
-                                transform(file, {
-                                    global: true
-                                }).on('data', (chunk) => {
-                                    console.log(chunk.toString());
+                                destinationFileName = destinationFileName.replace('|tsify|/', '');
 
-                                    results.push({
-                                        type: '',
-                                        content: chunk,
-                                        name: file + '.mjs',
-                                        map: undefined
-                                    });
-                                }).end();
+                                stateData.push({
+                                    content: Buffer.from(data),
+                                    type: 'text/javascript',
+                                    name: destinationFileName,
+                                    map: undefined
+                                });
+
+                                compiledFile.output = {
+                                    content: data,
+                                    fileName: destinationFileName,
+                                };
+
+                                cacheCompiledFile(fileName, compiledFile);
+                            }
+
+                            for (let sourceFile of sourceFiles) {
+                                writeFile(sourceFile.fileName);
                             }
                         }
-                    });
+                    };
 
-                    transform(datum.name, {
-                        global: true
-                    }).on('data', (chunk) => {
-                        console.log(chunk.toString());
+                    const readFile = host.readFile;
 
-                        results.push({
-                            type: '',
-                            content: chunk,
-                            name: datum.name + '.mjs',
-                            map: undefined
-                        });
-                    }).end();
-                });
-            });
+                    host.readFile = (fileName: string) => {
+                        if (isBuildInfoFile(fileName)) {
+                            return tsBuildInfo;
+                        }
 
-            return Promise.all(renderPromises).then((data) => {
-                return {
-                    name: stateName,
-                    data,
-                    dependencies
+                        return readFile(fileName);
+                    };
+
+                    const getSourceFile = host.getSourceFile;
+
+                    host.getSourceFile = (fileName: string, languageVersion): SourceFile => {
+                        if (isBuildInfoFile(fileName)) {
+                            return getSourceFile(fileName, languageVersion);
+                        }
+
+                        let compiledFile: CompiledFile = getCompiledFile(fileName);
+
+                        if (compiledFile) {
+                            return compiledFile.source;
+                        }
+
+                        const source: SourceFile = getSourceFile(fileName, languageVersion);
+
+                        const {mtimeMs} = lstatSync(fileName);
+
+                        compiledFile = new CompiledFile();
+                        compiledFile.etag = mtimeMs;
+                        compiledFile.source = source;
+
+                        cacheCompiledFile(fileName, compiledFile);
+
+                        return source;
+                    };
+
+                    const isBuildInfoFile = (fileName: string): boolean => {
+                        return fileName === compilerOptions.tsBuildInfoFile;
+                    };
+
+                    const createProgram = (options: CompilerOptions, rootNames: Array<string>, host: CompilerHost): EmitAndSemanticDiagnosticsBuilderProgram => {
+                        return createIncrementalProgram({rootNames, options, host});
+                    };
+
+                    const getCache = (key: string): CompiledFile => {
+                        if (!cache.has(key)) {
+                            cache.set(key, new CompiledFile());
+                        }
+
+                        return cache.get(key);
+                    };
+
+                    const cacheCompiledFile = (key: string, compiledFile: CompiledFile) => {
+                        cache.set(key, compiledFile);
+                    };
+
+                    const getCompiledFile = (fileName: string): CompiledFile | undefined => {
+                        const compiledFile = getCache(fileName);
+                        const {mtimeMs} = lstatSync(fileName);
+
+                        if (compiledFile.etag === mtimeMs) {
+                            return compiledFile;
+                        }
+
+                        return undefined;
+                    };
+
+                    const compile = (fileName: string): CompiledFile => {
+                        console.log('COMPILE', fileName);
+
+                        const program = createProgram(compilerOptions, [fileName], host);
+
+                        let diagnostics: readonly Diagnostic[] = [
+                            ...program.getSyntacticDiagnostics(),
+                            ...program.getOptionsDiagnostics(),
+                            ...program.getGlobalDiagnostics(),
+                            ...program.getSemanticDiagnostics()
+                        ];
+
+                        if (diagnostics.length) {
+                            for (let diagnostic of diagnostics) {
+                                //eventEmitter.emit('error', new TransformError(diagnostic));
+                            }
+
+                            return undefined;
+                        }
+
+                        program.emit();
+
+                        return getCompiledFile(fileName);
+                    };
+
+                    let compiledFile: CompiledFile = getCompiledFile(fileName);
+
+                    if (!compiledFile) {
+                        compiledFile = compile(fileName);
+                    }
+
+                    console.timeEnd('TS2');
+
+                    return {
+                        data: stateData,
+                        name: stateName,
+                        dependencies: stateDependencies
+                    };
                 }
-            });
+            }
         });
     };
 };

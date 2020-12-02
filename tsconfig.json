@@ -8,6 +8,7 @@
     "paths": {
       "sass": ["node_modules/@types/node-sass"]
     },
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "sourceMap": true
   }
 }

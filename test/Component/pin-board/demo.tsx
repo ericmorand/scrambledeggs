@@ -1,7 +1,7 @@
 import * as React from "react";
 import {render} from "../../index";
 import {PinBoardTest} from "./index";
-import {createMock, taskWithLongMessage, taskWithLongTitle} from "../task/mocks";
+import {createMock, taskWithLongMessage, taskWithLongTitle} from "../../Model/task/mocks";
 
 import type {TaskInterface} from "../../../src/Model/task";
 

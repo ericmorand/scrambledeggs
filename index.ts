@@ -1,7 +1,9 @@
 import {build as buildTypeScriptFactory} from "./lib/Typescript";
 import {buildTwigFactory} from "./lib/Twig";
 import {buildSassFactory} from "./lib/Sass";
+import {buildBundleFactory} from "./lib/Bundle";
 import {join as joinPath} from "path";
+import {unlinkSync} from "fs";
 import {TwingLoaderChain, TwingLoaderFilesystem, TwingLoaderRelativeFilesystem} from "twing";
 import {parseJsonConfigFileContent, sys} from "typescript";
 import {writeFactory} from "./lib/Write";
@@ -15,7 +17,11 @@ import broaderify from "broaderify";
 import {red} from 'colors/safe'
 import * as yargs from "yargs";
 import {Generator} from "./lib/commands/scaffold/component";
+import {rebaseStyleSheetAssetsFactory} from "./lib/RebaseStyleSheetAssets";
+import Tsify2 from "tsify2";
+
 import type {StateInterface, StateWorker} from "./lib/State";
+import type {Options as TsifyOptions} from "tsify2";
 
 const generator = new Generator();
 
@@ -34,35 +40,43 @@ const generator = new Generator();
 
 // typeScript
 const typeScriptConfig = parseJsonConfigFileContent(readTsConfigFile('./tsconfig.json'), sys, './');
+const tsify = Tsify2(typeScriptConfig.options);
 
-const buildTypeScript = buildTypeScriptFactory({
-    compilerOptions: typeScriptConfig.options,
-    bundlerOptions: {
-        extensions: ['.tsx', '.ts'],
-        debug: true,
-        transform: [
-            <[any, BroaderifyOptions]>[broaderify, {
-                global: true,
-                loaders: [{
-                    filter: /node_modules\/react\/index.js/,
-                    worker: (module, content, done) => {
-                        done(Buffer.from('module.exports = require(\'./cjs/react.production.min.js\');'));
-                    }
-                }, {
-                    filter: /node_modules\/react-dom\/index.js/,
-                    worker: (module, content, done) => {
-                        done(Buffer.from('module.exports = require(\'./cjs/react-dom.production.min.js\');'));
-                    }
-                }, {
-                    filter: /node_modules\/scheduler\/index.js/,
-                    worker: (module, content, done) => {
-                        done(Buffer.from('module.exports = require(\'./cjs/scheduler.production.min.js\');'));
-                    }
-                }]
+const buildTypeScript = buildBundleFactory({
+    plugins: [
+        <[any, TsifyOptions]>[tsify, {
+            global: true
+        }]
+    ],
+    transforms: [
+        <[any, BroaderifyOptions]>[broaderify, {
+            global: true,
+            loaders: [{
+                filter: /node_modules\/react\/index.js/,
+                worker: (module, content, done) => {
+                    done(Buffer.from('module.exports = require(\'./cjs/react.production.min.js\');'));
+                }
+            }, {
+                filter: /node_modules\/react-dom\/index.js/,
+                worker: (module, content, done) => {
+                    done(Buffer.from('module.exports = require(\'./cjs/react-dom.production.min.js\');'));
+                }
+            }, {
+                filter: /node_modules\/scheduler\/index.js/,
+                worker: (module, content, done) => {
+                    done(Buffer.from('module.exports = require(\'./cjs/scheduler.production.min.js\');'));
+                }
             }]
-        ]
-    }
+        }]
+    ],
+    extensions: ['.ts', '.tsx'],
+    sourceMap: true
 })
+
+// const buildTypeScript = buildTypeScriptFactory({
+//     compilerOptions: typeScriptConfig.options,
+//     cache: new Map()
+// });
 
 // twig
 const filesystemLoader = new TwingLoaderFilesystem('.');
@@ -91,10 +105,14 @@ const buildSass = buildSassFactory({
     outFile: 'index.css'
 });
 
+const rebaseStyleSheetAssets = rebaseStyleSheetAssetsFactory();
+
 const maestro: (state: StateInterface) => (...workers: Array<StateWorker>) => Promise<StateInterface> = (state) => {
     return (...workers) => {
         return new Promise<StateInterface>((resolve) => {
             const process = (state: StateInterface): void => {
+                console.time(state.name.toString());
+
                 const worker = workers.shift();
 
                 if (worker) {
@@ -102,6 +120,8 @@ const maestro: (state: StateInterface) => (...workers: Array<StateWorker>) => Pr
 
                     worker(state)
                         .then((state) => {
+                            console.timeEnd(state.name.toString());
+
                             // if the previous state was returned by the worker, we ignore it
                             if (state !== parent) {
                                 state.parent = parent;
@@ -113,8 +133,7 @@ const maestro: (state: StateInterface) => (...workers: Array<StateWorker>) => Pr
                                 } else {
                                     return process(state);
                                 }
-                            }
-                            else {
+                            } else {
                                 return process(state);
                             }
                         });
@@ -127,6 +146,8 @@ const maestro: (state: StateInterface) => (...workers: Array<StateWorker>) => Pr
         });
     }
 };
+
+const states: Map<string, StateInterface> = new Map();
 
 const processSassComponent: Worker<string, StateInterface> = (componentName) => {
     return Promise.resolve(componentName).then((componentName) => {
@@ -146,8 +167,32 @@ const processSassComponent: Worker<string, StateInterface> = (componentName) => 
             });
         };
 
-        return maestro(component.state)(buildSass).then((state) => {
-            return maestro(state)(cleanDependencies, write, reload, watch);
+        const clean: StateWorker = (state) => {
+            return Promise.resolve(state).then((state?) => {
+                if (state) {
+                    for (let datum of state.data) {
+                        console.log(joinPath('www', component.name, datum.name));
+
+                        unlinkSync(joinPath('www', component.name, datum.name));
+                    }
+                }
+
+                return state;
+            });
+        };
+
+        const save: StateWorker = (state) => {
+            return Promise.resolve(state).then((state) => {
+                states.set(componentName, state);
+
+                return state;
+            });
+        };
+
+        return maestro(states.get(componentName))(clean).then(() => {
+            return maestro(component.state)(buildSass).then((state) => {
+                return maestro(state)(cleanDependencies, rebaseStyleSheetAssets, write, reload, watch, save);
+            });
         });
     });
 };
