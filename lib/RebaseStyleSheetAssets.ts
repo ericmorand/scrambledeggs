@@ -5,7 +5,7 @@ import {lookup} from "mime-types";
 
 import type {DatumInterface, StateWorkerFactory} from "./State";
 
-export const stateName = Symbol('CSS Source Map Rebase');
+export const stateName = Symbol('Rebase Style Sheet');
 
 export type Options = {
     rebase?: RebaseHandler

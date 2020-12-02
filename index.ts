@@ -111,7 +111,8 @@ const maestro: (state: StateInterface) => (...workers: Array<StateWorker>) => Pr
     return (...workers) => {
         return new Promise<StateInterface>((resolve) => {
             const process = (state: StateInterface): void => {
-                console.time(state.name.toString());
+                const label: string = state.name.toString();
+                const timeStart: number = new Date().getTime();
 
                 const worker = workers.shift();
 
@@ -120,7 +121,9 @@ const maestro: (state: StateInterface) => (...workers: Array<StateWorker>) => Pr
 
                     worker(state)
                         .then((state) => {
-                            console.timeEnd(state.name.toString());
+                            const timeEnd: number = new Date().getTime();
+
+                            console.log(`${timeEnd - timeStart}ms`);
 
                             // if the previous state was returned by the worker, we ignore it
                             if (state !== parent) {
@@ -189,7 +192,7 @@ const processSassComponent: Worker<string, StateInterface> = (componentName) => 
             });
         };
 
-        return maestro(states.get(componentName))(clean).then(() => {
+        return clean(states.get(componentName)).then(() => {
             return maestro(component.state)(buildSass).then((state) => {
                 return maestro(state)(cleanDependencies, rebaseStyleSheetAssets, write, reload, watch, save);
             });
