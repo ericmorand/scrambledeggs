@@ -1,9 +1,10 @@
-import {RebaseHandler, Rebaser} from "css-source-map-rebase/dist/lib/Rebaser";
+import {Rebaser} from "css-source-map-rebase";
 import {parse} from "url";
 import {readFileSync} from "fs";
 import {lookup} from "mime-types";
 
 import type {DatumInterface, StateWorkerFactory} from "./State";
+import type {RebaseHandler} from "css-source-map-rebase";
 
 export const stateName = Symbol('Rebase Style Sheet');
 

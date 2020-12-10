@@ -1,0 +1,102 @@
+@use "src/Primitives/viewport" as Viewport;
+
+@mixin document-as-list-item {
+  > .inner {
+    display: flex;
+    flex-direction: row;
+    height: 5em;
+
+    .content {
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+      flex-shrink: 1;
+      padding: 0.5em 1.5em;
+      justify-content: center;
+      box-sizing: border-box;
+      min-width: 0;
+
+      @include Viewport.medium() {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+      }
+    }
+
+    .primary-information {
+      font-weight: bold;
+    }
+
+    .primary-information, .category, .reference, .date {
+      @include Viewport.medium() {
+        width: 25%;
+        font-weight: bold;
+        padding: 0 1em;
+        box-sizing: border-box;
+      }
+    }
+
+    .secondary-information {
+      @include Viewport.medium() {
+        width: 75%;
+      }
+    }
+
+    .title, .category, .reference {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: block;
+    }
+
+    .title {
+      color: #0C6BA8;
+
+      @include Viewport.medium() {
+        color: inherit;
+      }
+    }
+
+    .secondary-information {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      margin-top: 0.25em;
+
+      @include Viewport.medium() {
+        margin-top: 0;
+      }
+    }
+
+    .category {
+      display: none;
+
+      @include Viewport.medium() {
+        display: initial;
+      }
+    }
+
+    .action {
+      background-color: #0C6BA8;
+      color: white;
+      flex-shrink: 0;
+      width: 5em;
+
+      a {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: inherit;
+        font-size: 2em;
+        text-decoration: none;
+        height: 100%;
+        line-height: 1;
+      }
+    }
+  }
+}
+
+.document[data-view-mode="list-item"] {
+  @include document-as-list-item;
+}

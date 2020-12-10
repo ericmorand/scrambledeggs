@@ -7,7 +7,7 @@ export const createMock = (properties: Partial<ApplicationProperties> & {
     subStatus?: string
 } = {}): ApplicationInterface => {
     return {
-        identifier: '1',
+        identifier: Math.random().toString(),
         status: properties.status || DRAFT_STATUS,
         subStatus: properties.subStatus || undefined,
         completionDate: properties.completionDate || undefined,

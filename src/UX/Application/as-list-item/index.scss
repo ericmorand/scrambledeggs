@@ -1,0 +1,58 @@
+@use "../../../Primitives/button/index" as Button;
+@use "../../../Primitives/viewport/index" as Viewport;
+@use "../../../Primitives/badge/index" as Badge;
+
+@mixin as-list-item() {
+  &, .tools {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .actions {
+    a {
+      text-decoration: none;
+      color: inherit;
+      margin-left: 1em;
+      font-size: 2em;
+    }
+  }
+
+  &[data-status="draft"] {
+    .badge {
+      @include Badge.information;
+      background-color: lightgrey;
+      color: black;
+    }
+  }
+
+  &[data-status="pending"] {
+    .badge {
+      @include Badge.information;
+      background-color: grey;
+    }
+  }
+
+  &[data-status="ongoing"] {
+    .badge {
+      @include Badge.information;
+    }
+  }
+
+  &[data-status="blocked"] {
+    .badge {
+      @include Badge.alert;
+    }
+  }
+
+  &[data-status="done"] {
+    .badge {
+      @include Badge.success;
+    }
+  }
+}
+
+.application[data-view-mode="list-item"] {
+  @include as-list-item;
+}

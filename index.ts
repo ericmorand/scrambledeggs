@@ -154,7 +154,7 @@ const states: Map<string, StateInterface> = new Map();
 
 const processSassComponent: Worker<string, StateInterface> = (componentName) => {
     return Promise.resolve(componentName).then((componentName) => {
-        const component = new Component(componentName, `test/Component/${componentName}/demo.scss`, 'text/x-scss');
+        const component = new Component(componentName, `test/UX/${componentName}/demo.scss`, 'text/x-scss');
         const write = writeFactory(joinPath('www', component.name));
         const reload = reloadFactory({component, entry: 'index.css'});
         const watch = watchFactory(() => processSassComponent(componentName));
@@ -202,7 +202,7 @@ const processSassComponent: Worker<string, StateInterface> = (componentName) => 
 
 const processTypeScriptComponent: Worker<string, StateInterface> = (componentName) => {
     return Promise.resolve(componentName).then((componentName) => {
-        const component = new Component(componentName, `test/Component/${componentName}/demo.tsx`, 'text/x-typescript');
+        const component = new Component(componentName, `test/UX/${componentName}/demo.tsx`, 'text/x-typescript');
         const write = writeFactory(joinPath('www', component.name));
         const reload = reloadFactory({component, entry: 'index.js'});
         const watch = watchFactory(() => processTypeScriptComponent(componentName));
@@ -224,7 +224,7 @@ const processTypeScriptComponent: Worker<string, StateInterface> = (componentNam
 
 const processTwigComponent: Worker<string, StateInterface> = (componentName) => {
     return Promise.resolve(componentName).then((componentName) => {
-        const component = new Component(componentName, `test/Component/${componentName}/demo.html.twig`, 'text/x-twig');
+        const component = new Component(componentName, `test/UX/${componentName}/demo.html.twig`, 'text/x-twig');
         const write = writeFactory(joinPath('www', component.name));
         const serve = serveFactory({component, entry: 'index.html'});
         const watch = watchFactory(() => processTwigComponent(componentName));

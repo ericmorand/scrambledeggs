@@ -1,0 +1,47 @@
+@use "src/Primitives/viewport" as Viewport;
+
+@mixin with-navigation() {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+
+  > .header {
+    background-color: darkgreen;
+    height: 64px;
+    flex-grow: 0;
+    flex-shrink: 0;
+  }
+
+  .main {
+    display: flex;
+    flex-direction: row;
+    min-width: 0;
+    flex-shrink: 1;
+    height: 100%;
+    min-height: 0;
+  }
+
+  .navigation, .content {
+    overflow-y: auto;
+  }
+
+  .navigation {
+    background-color: orangered;
+    width: percentage(1/3);
+    max-width: 300px;
+    display: none;
+
+    @include Viewport.medium() {
+      display: initial;
+    }
+  }
+
+  .content {
+    background-color: wheat;
+    flex-grow: 1;
+  }
+}
+
+.page[data-layout="with-navigation"] {
+  @include with-navigation;
+}

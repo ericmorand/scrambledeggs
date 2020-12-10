@@ -2,8 +2,8 @@ import type {BrowserifyObject} from "browserify";
 import * as Browserify from "browserify";
 import type {DatumInterface, StateWorkerFactory} from "./State";
 
-export type PluginDefinition<T> = [(browserify: BrowserifyObject, opts: T) => any, T];
-export type TransformDefinition<T> = [(browserify: string, opts: T) => NodeJS.ReadWriteStream, T];
+export type PluginDefinition<T> = [(browserify: BrowserifyObject, options: T) => any, T];
+export type TransformDefinition<T> = [(browserify: string, options: T) => NodeJS.ReadWriteStream, T];
 
 export const stateName = Symbol('Bundle');
 

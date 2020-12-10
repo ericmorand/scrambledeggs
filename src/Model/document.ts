@@ -1,10 +1,13 @@
 import {Entity, EntityInterface, EntityProperties} from "./entity";
+import {ApplicationInterface} from "./application";
 
 export interface DocumentInterface extends EntityInterface {
     title: string;
     date: Date;
     url: URL;
     type: 'pdf' | 'jpg';
+    reference: string;
+    category: string;
 }
 
 export type DocumentProperties = EntityProperties & {
@@ -12,9 +15,10 @@ export type DocumentProperties = EntityProperties & {
     date: Date;
     url: URL;
     type: 'pdf' | 'jpg';
+    reference: string;
 };
 
-export class Document extends Entity<DocumentProperties> implements DocumentInterface {
+export abstract class Document<P extends DocumentProperties> extends Entity<P> implements DocumentInterface {
     get title() {
         return this._properties.title;
     }
@@ -29,5 +33,31 @@ export class Document extends Entity<DocumentProperties> implements DocumentInte
 
     get type() {
         return this._properties.type;
+    }
+
+    get reference() {
+        return this._properties.reference;
+    }
+
+    get category(): string {
+        return undefined;
+    }
+}
+
+export interface ApplicationDocumentInterface extends DocumentInterface {
+    application: ApplicationInterface;
+}
+
+export type ApplicationDocumentProperties = DocumentProperties & {
+    application: ApplicationInterface;
+};
+
+export class ApplicationDocument extends Document<ApplicationDocumentProperties> implements ApplicationDocumentInterface {
+    get application() {
+        return this._properties.application;
+    }
+
+    get category() {
+        return 'CATEGORY';
     }
 }
