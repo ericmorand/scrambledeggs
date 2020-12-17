@@ -1,0 +1,24 @@
+@mixin notFound() {
+  display: flex;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  background-color: orangered;
+  color: white;
+  padding: 1em;
+
+  h1 {
+    text-transform: uppercase;
+    font-size: 5em;
+    text-align: center;
+  }
+
+  a {
+    color: white;
+  }
+}
+
+.not-found {
+  @include notFound;
+}

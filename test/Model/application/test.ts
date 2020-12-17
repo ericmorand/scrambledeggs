@@ -1,8 +1,8 @@
 import * as tape from "tape";
-import {Application, ApplicationInterface} from "../../../src/Model/application";
+import {Application, ApplicationInterface} from "../../../src/modules/application/Model/application";
 import {stub} from "sinon";
 
-import type {TaskInterface} from "../../../src/Model/task";
+import type {TaskInterface} from "../../../src/modules/_/Model/task";
 
 tape('Application', (test) => {
     type ApplicationProperties = {

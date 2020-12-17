@@ -1,0 +1,72 @@
+@use "src/themes/base/border" as Border;
+@use "src/themes/base/color" as Color;
+
+.table {
+  border: Border.border();
+  position: relative;
+
+  > .header {
+    display: flex;
+    flex-direction: row;
+    background-color: Color.background();
+    color: Color.onBackground();
+    border-bottom: Border.border();
+
+    > div {
+      padding: 1em;
+      flex-grow: 1;
+
+      + div {
+        border-left: Border.border();
+      }
+    }
+  }
+
+  > .body {
+    > .no-items {
+      height: 200px;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      padding: 1em;
+    }
+  }
+
+  > .loader {
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    bottom: 0;
+    padding: 1.0em;
+    background-color: rgba(black, 0.5);
+    min-height: 64px;
+  }
+}
+
+@mixin list() {
+
+  > .items {
+    @include items;
+
+    > .item {
+      @include item;
+    }
+  }
+}
+
+@mixin items() {
+  overflow-y: auto;
+  height: 100%;
+  z-index: 0;
+}
+
+@mixin item() {
+  border-bottom: Border.border();
+  border-bottom-width: 1px;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}

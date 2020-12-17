@@ -1,4 +1,4 @@
-import type {DocumentInterface} from "../../../src/Model/document";
+import type {DocumentInterface} from "../../../src/modules/document/Model/document";
 
 export const pdfDocument: DocumentInterface = {
     category: 'Doc category',

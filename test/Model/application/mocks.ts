@@ -1,8 +1,9 @@
-import {ApplicationInterface, ApplicationProperties, DRAFT_STATUS} from "../../../src/Model/application";
+import {ApplicationInterface, DRAFT_STATUS} from "../../../src/modules/application/Model/application";
 
-import type {Status} from "../../../src/Model/application";
+import type {Status} from "../../../src/modules/application/Model/application";
+import {afc, createDepartmentMock, ocpm} from "../../application/Model/department/mocks";
 
-export const createMock = (properties: Partial<ApplicationProperties> & {
+export const createApplicationMock = (properties: Partial<ApplicationInterface> & {
     status?: Status,
     subStatus?: string
 } = {}): ApplicationInterface => {
@@ -14,16 +15,11 @@ export const createMock = (properties: Partial<ApplicationProperties> & {
         creationDate: new Date(),
         depositDate: undefined,
         documents: [],
-        service: {
-            label: 'A service',
-            identifier: '1'
-        },
+        department: properties.department || Math.random() > 0.5 ? afc : ocpm,
         tasks: [],
         treatmentDate: properties.treatmentDate || undefined,
         user: undefined
     };
 };
 
-export const taskWithLongTitle = createMock({})
-
-export const taskWithLongMessage = createMock({})
+export const applicationWithLongTitle = createApplicationMock({})

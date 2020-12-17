@@ -1,0 +1,20 @@
+@use "sass:list";
+@use "src/themes/base/color" as Color;
+@use "src/themes/base/border" as Border;
+
+$palette: #9bbc0f #8bac0f #306230 #0f380f;
+
+@include Color.configure((
+  primary: #8bac0f,
+  primary-light: #9bbc0f,
+  primary-dark: #306230,
+  surface: #9bbc0f,
+  background: #8bac0f,
+  on-primary: #0f380f,
+  on-primary-light: #0f380f,
+  on-primary-dark: #0f380f,
+  on-surface: #0f380f,
+  on-background: #0f380f
+));
+
+@include Border.configure(10px, null, Color.primaryDark());

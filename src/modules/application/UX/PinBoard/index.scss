@@ -1,0 +1,57 @@
+@use "../../../../themes/core/UX/viewport" as Viewport;
+@use "../../../../themes/core/UX/grid" as Grid;
+@use "../../../../themes/base/color" as Color;
+
+@mixin pinBoard() {
+  background-color: Color.background();
+  height: 100%;
+  padding: 1em;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+
+  @include Viewport.medium() {
+    padding: 2em 4em;
+  }
+
+  > .header {
+    text-align: center;
+    margin-bottom: 1em;
+
+    h2 {
+      margin: 0;
+    }
+  }
+
+  .pins {
+    @include Grid.grid;
+    flex-shrink: 1;
+    flex-grow: 0;
+    min-height: 0;
+    overflow: auto;
+  }
+
+  .pin {
+    box-sizing: border-box;
+    box-shadow: 0.5em 0.5em 1em rgba(black, 0.5);
+    @include Grid.element(1);
+    background-color: Color.surface();
+
+    @include Viewport.small() {
+      display: inline-block;
+      @include Grid.element(2);
+    }
+
+    @include Viewport.medium() {
+      @include Grid.element(3);
+    }
+
+    @include Viewport.large() {
+      @include Grid.element(4, 1);
+    }
+  }
+}
+
+.pin-board {
+  @include pinBoard;
+}

@@ -1,0 +1,82 @@
+@use "../../../../../themes/core/UX/button/index" as button;
+@use "../../../../../themes/core/UX/iconography/index" as Iconography;
+
+@mixin task-as-card() {
+  border-color: rgba(black, 0.5);
+  border: solid 1px;
+  position: relative;
+
+  &:before {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 0;
+  }
+
+  .content {
+    position: relative;
+    z-index: 1;
+  }
+
+  .header, .message, .actions, .footer {
+    padding: 1em;
+  }
+
+  .header {
+    border-bottom: solid 1px;
+    font-weight: bold;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  .footer {
+    border-top: solid 1px;
+
+    .due-date {
+      text-align: right;
+
+      span, &:before {
+        vertical-align: middle;
+      }
+
+      &:before {
+        @include Iconography.icon(🕒);
+        margin-right: 0.25em;
+        font-size: 1.5em;
+      }
+    }
+  }
+
+  .actions {
+    border-top: solid 1px;
+    text-align: right;
+
+    .action {
+      display: inline-block;
+
+      + .action {
+        margin-left: 1em;
+      }
+
+      > a {
+        text-decoration: none;
+
+        &.primary-action {
+          @include button.primary;
+        }
+
+        &.secondary-action {
+          @include button.secondary;
+        }
+      }
+    }
+  }
+}
+
+.task[data-view-mode="card"] {
+  @include task-as-card;
+}

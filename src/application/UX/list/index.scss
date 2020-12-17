@@ -1,0 +1,26 @@
+@use "src/themes/base/border" as Border;
+
+@mixin list() {
+  > .items {
+    @include items;
+
+    > .item {
+      @include item;
+    }
+  }
+}
+
+@mixin items() {
+  overflow-y: auto;
+  height: 100%;
+  z-index: 0;
+}
+
+@mixin item() {
+  border-bottom: Border.border();
+  border-bottom-width: 1px;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}

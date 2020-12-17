@@ -1,0 +1,16 @@
+@use "../../../themes/core/UX/viewport/index" as Viewport;
+
+@mixin page() {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+
+  > .content {
+    background-color: wheat;
+    flex-grow: 1;
+  }
+}
+
+.page {
+  @include page;
+}

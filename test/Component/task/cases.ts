@@ -1,4 +1,4 @@
-import type {TaskInterface} from "../../../src/Model/task";
+import type {TaskInterface} from "../../../src/modules/_/Model/task";
 import {createMock} from "../../Model/task/mocks";
 
 type TaskTestCase = {

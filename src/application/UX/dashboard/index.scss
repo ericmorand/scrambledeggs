@@ -1,0 +1,24 @@
+@mixin dashboard() {
+ > .video {
+   position: relative;
+
+   &:after {
+     content: "";
+     display: block;
+     padding-bottom: (9 / 42) * 100%;
+   }
+
+   iframe {
+     position: absolute;
+     width: 100%;
+     height: 100%;
+     display: block;
+     top: 0;
+     left: 0;
+   }
+ }
+}
+
+.dashboard {
+  @include dashboard;
+}

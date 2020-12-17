@@ -1,0 +1,33 @@
+$_width: 5px;
+$_style: solid;
+$_color: orangered;
+
+@mixin configure($width: null, $style: null, $color: null) {
+  @if ($width) {
+    $_width: $width !global;
+  }
+
+  @if ($style) {
+    $_style: $style !global;
+  }
+
+  @if ($color) {
+    $_color: $color !global;
+  }
+}
+
+@function width() {
+  @return $_width;
+}
+
+@function style() {
+  @return $_style;
+}
+
+@function color() {
+  @return $_color;
+}
+
+@function border() {
+  @return $_style $_width $_color;
+}

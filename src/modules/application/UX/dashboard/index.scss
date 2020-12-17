@@ -1,0 +1,43 @@
+@use "src/application/UX/list" as List;
+@use "src/themes/core/UX/viewport" as Viewport;
+@use "src/themes/base/border" as Border;
+@use "src/themes/base/color" as Color;
+
+.application-dashboard {
+  .tasks {
+    border-bottom: Border.border();
+
+    @include Viewport.medium() {
+      height: 400px;
+    }
+  }
+
+  .applications {
+    padding: 1em;
+
+    @include Viewport.medium() {
+      padding: 2em 4em;
+    }
+
+    > div {
+      background-color: white;
+      border: Border.border();
+
+      & + div {
+        margin-top: 2em;
+      }
+
+      > .header {
+        text-align: center;
+        padding: 0.5em 1em;
+        border-bottom: Border.border();
+        background-color: Color.surface();
+        color: Color.onSurface();
+      }
+
+      > .list {
+        @include List.list;
+      }
+    }
+  }
+}

@@ -1,10 +1,10 @@
 import * as React from "react";
 import {render} from "../../../index";
-import {DocumentTest} from "./index";
+import {DocumentAsListItemTest} from "./index";
 
 render('Document As List Item Demo', [{
     title: 'Default',
-    content: <DocumentTest document={{
+    content: <DocumentAsListItemTest document={{
         identifier: `${Math.random()}`,
         title: 'Avis de taxation ICC',
         url: new URL('https://enu.ge.ch/document.pdf'),
@@ -15,7 +15,7 @@ render('Document As List Item Demo', [{
     }}/>
 }, {
     title: 'With a PDF type',
-    content: <DocumentTest document={{
+    content: <DocumentAsListItemTest document={{
         identifier: `${Math.random()}`,
         title: 'Décision de non imposition IFD',
         url: new URL('https://enu.ge.ch/document.pdf'),

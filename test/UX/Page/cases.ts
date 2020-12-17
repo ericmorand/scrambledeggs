@@ -1,6 +1,6 @@
-import type {ApplicationInterface} from "../../../src/Model/application";
-import {DONE_STATUS, ONGOING_STATUS, PENDING_STATUS} from "../../../src/Model/application";
-import {createMock} from "../../Model/application/mocks";
+import type {ApplicationInterface} from "../../../src/modules/application/Model/application";
+import {DONE_STATUS, ONGOING_STATUS, PENDING_STATUS} from "../../../src/modules/application/Model/application";
+import {createApplicationMock} from "../../Model/application/mocks";
 
 type ApplicationTestCase = {
   title: string;
@@ -9,25 +9,25 @@ type ApplicationTestCase = {
 
 const testCases: Array<ApplicationTestCase> = [{
     title: 'Default',
-    application: createMock({})
+    application: createApplicationMock({})
 }, {
     title: 'With a long title',
-    application: createMock({
+    application: createApplicationMock({
         status: PENDING_STATUS
     })
 }, {
     title: 'With a long title',
-    application: createMock({
+    application: createApplicationMock({
         subStatus: 'Waiting for documents'
     })
 }, {
     title: 'With a long message',
-    application: createMock({
+    application: createApplicationMock({
         status: ONGOING_STATUS
     })
 }, {
     title: 'With a long title',
-    application: createMock({
+    application: createApplicationMock({
         status: DONE_STATUS
     })
 }];

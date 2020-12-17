@@ -1,6 +1,6 @@
-import {TaskInterface, TaskProperties} from "../../../src/Model/task";
+import {TaskInterface} from "../../../src/modules/application/Model/task";
 
-export const createMock = (properties: Partial<TaskProperties> = {}): TaskInterface => {
+export const createMock = (properties: Partial<TaskInterface> = {}): TaskInterface => {
     return {
         title: properties.title || 'Task title',
         message: properties.message || 'Hell is not the outer mineral of the source. '.repeat(Math.ceil(Math.random() * 10)).trimEnd(),

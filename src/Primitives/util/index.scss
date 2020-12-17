@@ -1,9 +1,0 @@
-@use "src/Primitives/font" as font;
-
-@function px-to-em($value) {
-  @return ($value / font.$base-font-size) * 1.0em;
-}
-
-@function px-to-rem($value) {
-  @return ($value / font.$base-font-size) * 1.0rem;
-}

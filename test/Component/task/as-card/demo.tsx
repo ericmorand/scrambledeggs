@@ -3,7 +3,7 @@ import {render} from "../../../index";
 import {TaskAsCardTest} from "./index";
 import testCases from "../cases";
 
-import type {TaskInterface, TaskProperties} from "../../../../src/Model/task";
+import type {TaskInterface, TaskProperties} from "../../../../src/modules/_/Model/task";
 
 const createFakeTask = (properties: Partial<TaskProperties> = {}): TaskInterface => {
     return {

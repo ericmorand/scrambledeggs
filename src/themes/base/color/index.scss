@@ -1,0 +1,58 @@
+$_palette: (
+  primary: orangered,
+  primary-light: orange,
+  primart-dark: red,
+
+  surface: white,
+  background: #F5F5FB,
+
+  on-primary: black,
+  on-primary-light: black,
+  on-primary-dark: black,
+  on-surface: black,
+  on-background: black
+);
+
+@mixin configure($palette) {
+  $_palette: $palette !global;
+}
+
+@function primary() {
+  @return map-get($_palette, primary);
+}
+
+@function primaryLight() {
+  @return map-get($_palette, primary-light);
+}
+
+@function primaryDark() {
+  @return map-get($_palette, primary-dark);
+}
+
+@function surface() {
+  @return map-get($_palette, surface);
+}
+
+@function background() {
+  @return map-get($_palette, background);
+}
+
+@function onPrimary() {
+  @return map-get($_palette, on-primary);
+}
+
+@function onPrimaryLight() {
+  @return map-get($_palette, on-primary-light);
+}
+
+@function onPrimaryDark() {
+  @return map-get($_palette, on-primary-dark);
+}
+
+@function onSurface() {
+  @return map-get($_palette, on-surface);
+}
+
+@function onBackground() {
+  @return map-get($_palette, on-background);
+}
