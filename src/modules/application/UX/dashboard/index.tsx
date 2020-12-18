@@ -1,12 +1,9 @@
 import * as React from "react";
-import {Component, ReactElement} from "react";
+import {Component} from "react";
 import {PinBoard} from "../PinBoard";
-import {ApplicationAsListItem} from "../Application/as-list-item";
-import {ApplicationProperties} from "../Application";
 import {TaskInterface} from "../../Model/task";
-import {TableTest} from "../../../../../test/application/UX/table";
 import {Table} from "../../../../application/UX/table";
-import {archivedApplicationsDataSource} from "../../Data/applications";
+import {archivedApplicationsDataSource, nonArchivedApplicationsDataSource} from "../../Data/applications";
 
 export type ApplicationDashboardProperties = {
     tasks: IterableIterator<TaskInterface>
@@ -24,7 +21,7 @@ export class ApplicationDashboard extends Component<ApplicationDashboardProperti
                         <h2>My Ongoing Applications</h2>
                     </div>
                     <div className="list">
-                        <TableTest/>
+                        <Table dataSource={nonArchivedApplicationsDataSource}/>
                     </div>
                 </div>
                 <div className="archived-applications">

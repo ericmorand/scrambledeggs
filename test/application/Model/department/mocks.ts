@@ -1,16 +1,19 @@
 import {DepartmentInterface} from "../../../../src/application/Model/department";
 
-export const createDepartmentMock: (properties: Partial<DepartmentInterface>) =>
-DepartmentInterface = (properties) => {
+export const createDepartment: (properties: DepartmentInterface) =>
+    DepartmentInterface = (properties) => {
     return {
-        identifier: properties.identifier || 'afc',
-        label: properties.label || 'AFC',
+        identifier: properties.identifier,
+        label: properties.label,
     };
 };
 
-export const afc = createDepartmentMock({});
-export const ocpm = createDepartmentMock({
+export const afc = createDepartment({
+    identifier: 'afc',
+    label: 'Administration Fiscale Cantonale'
+});
+export const ocpm = createDepartment({
     identifier: 'ocpm',
-    label: 'OCPM'
+    label: 'Office Cantonal de la Population et des Migrations'
 });
 

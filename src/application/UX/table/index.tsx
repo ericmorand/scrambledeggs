@@ -4,7 +4,7 @@ import {ApplicationInterface} from "../../../modules/application/Model/applicati
 import {ApplicationAsListItem} from "../../../modules/application/UX/Application/as-list-item";
 import {spinner} from "../spinner";
 import {ApplicationsDataSource} from "../../../modules/application/Data/applications";
-import {DepartmentInterface} from "../../Model/department";
+import {CategoryInterface} from "../../Model/category";
 
 export type TableProperties = {
     dataSource: ApplicationsDataSource
@@ -16,7 +16,7 @@ export type TableState = {
 };
 
 export class Table extends Component<TableProperties, TableState> {
-    protected _departments: Set<DepartmentInterface>;
+    protected _categories: Set<CategoryInterface>;
 
     constructor(properties: TableProperties) {
         super(properties);
@@ -26,7 +26,7 @@ export class Table extends Component<TableProperties, TableState> {
             busy: false
         };
 
-        this._departments = new Set();
+        this._categories = new Set();
     }
 
     componentDidMount() {
@@ -38,10 +38,10 @@ export class Table extends Component<TableProperties, TableState> {
 
         this.fetchItems().then((applications) => {
             for (let application of applications) {
-                this._departments.add(application.department);
+                this._categories.add(application.service.category);
             }
 
-            console.log('FETCH DONE', this._departments);
+            console.log('FETCH DONE', this._categories);
 
             this.applications = applications;
         });
@@ -54,13 +54,13 @@ export class Table extends Component<TableProperties, TableState> {
         });
     }
 
-    fetchItems(departmentId: string = null): Promise<Array<ApplicationInterface>> {
+    fetchItems(categoryIdentifier: string = null): Promise<Array<ApplicationInterface>> {
         this.setState({
             busy: true
         });
 
         return this.props.dataSource.get({
-            departmentId
+            categoryIdentifier: categoryIdentifier
         }, {}).then((applications) => {
             return [...applications];
         });
@@ -79,7 +79,7 @@ export class Table extends Component<TableProperties, TableState> {
 
         const options: Array<ReactElement> = [];
 
-        for (let department of this._departments) {
+        for (let department of this._categories) {
             options.push(<option value={department.identifier}>{department.label}</option>);
         }
 

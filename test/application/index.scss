@@ -1,5 +1,5 @@
-@import "test/UX/Page/with-navigation";
-@import "test/UX/Application/as-list-item";
+@import "UX/page/with-navigation";
+@import "../modules/application/UX/application/as-list-item";
 @import "../../../src/modules/core/UX/document";
 @import "../../dashboard/UX/dashboard";
 @import "../../../src/modules/core/UX/not-found";

@@ -9,7 +9,6 @@ import {Dashboard} from "./UX/dashboard";
 import {MyDashboard} from "./UX/navigation/my-dashboard";
 import {Login} from "./UX/user/login";
 import {MyProfile} from "./UX/navigation/my-profile";
-import {NavigationRouteItem} from "./UX/navigation/route-item";
 
 export interface ModuleInterface {
     navigationItems: Promise<Array<ReactElement>>

@@ -15,9 +15,25 @@
     > div {
       padding: 1em;
       flex-grow: 1;
+      flex-basis: 20%;
+      box-sizing: border-box;
 
       + div {
         border-left: Border.border();
+      }
+
+      &.category {
+        select {
+          border: none;
+          background: none;
+          width: 100%;
+
+          option {
+            background-color: orangered;
+            color: white;
+            font-weight: 2em;
+          }
+        }
       }
     }
   }

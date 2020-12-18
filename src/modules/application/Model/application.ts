@@ -1,19 +1,20 @@
-import {DepartmentInterface} from "../../../application/Model/department";
 import {EntityInterface} from "../../../application/Model/entity";
 import {UserInterface} from "../../../application/Model/user";
 import {TaskInterface} from "./task";
 
 import type {DocumentInterface} from "../../document/Model/document";
+import {ServiceInterface} from "./service";
 
 export const DRAFT_STATUS = Symbol('draft');
 export const PENDING_STATUS = Symbol('pending');
 export const ONGOING_STATUS = Symbol('ongoing');
 export const DONE_STATUS = Symbol('done');
+export const CANCELLED_STATUS = Symbol('cancelled');
 
-export type Status = typeof DRAFT_STATUS | typeof PENDING_STATUS | typeof ONGOING_STATUS | typeof DONE_STATUS;
+export type Status = typeof DRAFT_STATUS | typeof PENDING_STATUS | typeof ONGOING_STATUS | typeof DONE_STATUS | typeof CANCELLED_STATUS;
 
 export interface ApplicationInterface extends EntityInterface {
-    department: DepartmentInterface;
+    service: ServiceInterface;
     user: UserInterface;
     tasks: Array<TaskInterface>;
     creationDate: Date;

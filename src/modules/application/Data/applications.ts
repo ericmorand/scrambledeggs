@@ -1,33 +1,41 @@
 import {DataSourceInterface} from "../../../application/data-source";
-import {applicationWithLongTitle} from "../../../../test/Model/application/mocks";
 
 import type {ApplicationInterface, Status} from "../Model/application";
-import {DONE_STATUS} from "../Model/application";
+import {CANCELLED_STATUS, DONE_STATUS, DRAFT_STATUS, ONGOING_STATUS, PENDING_STATUS} from "../Model/application";
 
 type FilterInterface = {
-    departmentId?: string,
-    status?: Status
+    categoryIdentifier?: string,
+    statuses?: Array<Status>
 };
 
 export type ApplicationsDataSource = DataSourceInterface<ApplicationInterface, FilterInterface>;
 
 export const applicationsDataSource: ApplicationsDataSource = {
-    get: () => {
-        const count: number = Math.ceil(Math.random() * 10);
+    get: (filter, sorter) => {
+        // todo: here we should query the persistent storage layer
+        return Promise.resolve([][Symbol.iterator]());
+    }
+}
 
-        const results: Array<ApplicationInterface> = [];
+export const nonArchivedApplicationsDataSource: ApplicationsDataSource = {
+    get: (filter, sorter) => {
+        console.log('nonArchivedApplicationsDataSource GET');
 
-        for (let i = 0; i < count; i++) {
-            results.push(applicationWithLongTitle);
-        }
+        filter.statuses = [
+            PENDING_STATUS,
+            ONGOING_STATUS
+        ];
 
-        return Promise.resolve(results[Symbol.iterator]());
+        return applicationsDataSource.get(filter, sorter);
     }
 }
 
 export const archivedApplicationsDataSource: ApplicationsDataSource = {
     get: (filter, sorter) => {
-        filter.status = DONE_STATUS;
+        filter.statuses = [
+            DONE_STATUS,
+            CANCELLED_STATUS
+        ];
 
         return applicationsDataSource.get(filter, sorter);
     }

@@ -3,13 +3,20 @@
 @use "../../../../../themes/core/UX/badge/index" as Badge;
 
 @mixin as-list-item() {
-  padding: 1em;
-
-  &, .tools {
+  & {
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
     align-items: center;
+  }
+
+  > div {
+    flex-grow: 1;
+    flex-basis: 20%;
+    padding: 1em;
+
+    &.status, &.date, &.tools {
+      text-align: center;
+    }
   }
 
   .actions {
@@ -51,6 +58,13 @@
   &[data-status="done"] {
     .badge {
       @include Badge.success;
+    }
+  }
+
+  &[data-status="cancelled"] {
+    .badge {
+      @include Badge.information;
+      background-color: grey;
     }
   }
 }
