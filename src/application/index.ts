@@ -1,31 +1,20 @@
 import modules from "../modules";
-import {createElement, FunctionComponent, ReactElement} from "react";
-import {on, redirect, register, start} from "../lib/Router";
+import {registerRoute, dispatch, createURL} from "routee";
 import {render} from "react-dom";
 import {Page} from "./UX/page";
 import {NotFound} from "./UX/not-found";
 import {PageWithNavigation} from "./UX/page/with-navigation";
 import {Dashboard} from "./UX/dashboard";
-import {MyDashboard} from "./UX/navigation/my-dashboard";
-import {Login} from "./UX/user/login";
-import {MyProfile} from "./UX/navigation/my-profile";
+import {getLocation, listen} from "./router";
+import {Application, ApplicationProperties} from "./UX/application";
+
+import type {RouteInterface} from "routee";
+import type {ReactElement} from "react";
+import {getUserToken} from "../modules/user";
 
 export interface ModuleInterface {
-    navigationItems: Promise<Array<ReactElement>>
+    navigationItems: Promise<Array<NavigationItem>>
 }
-
-export const getUserToken = (): string | undefined => {
-    return localStorage.getItem('token');
-};
-
-export const setUserToken = (value: string | null): void => {
-    if (value === null) {
-        localStorage.removeItem('token');
-    }
-    else {
-        localStorage.setItem('token', value);
-    }
-};
 
 const listeners: Array<() => void> = [];
 
@@ -33,21 +22,30 @@ export const ready = (listener: () => void) => {
     listeners.push(listener);
 };
 
-const navigationProvider = (): Promise<Array<ReactElement>> => {
-    const promises: Array<Promise<Array<ReactElement>>> = [
-        Promise.resolve([
-            createElement(MyDashboard),
-            createElement(MyProfile)
-        ])
-    ];
+type NavigationItem = {
+    icon: string,
+    label: string,
+    url: string,
+    route: RouteInterface<any>
+};
 
-    console.log('MMM', modules);
+export let navigationItems: Array<NavigationItem>;
+
+const navigationProvider = (): Promise<Array<NavigationItem>> => {
+    const promises: Array<Promise<Array<NavigationItem>>> = [
+        Promise.resolve([{
+            label: 'My Dashboard',
+            route: homeRoute,
+            url: createURL(homeRoute, {}),
+            icon: 'dashboard'
+        }])
+    ];
 
     for (let module of modules) {
         promises.push(module.navigationItems);
     }
 
-    let results: Array<ReactElement> = [];
+    let results: Array<NavigationItem> = [];
 
     return Promise.all(promises).then((itemsArrays) => {
         for (let itemsArray of itemsArrays) {
@@ -57,16 +55,6 @@ const navigationProvider = (): Promise<Array<ReactElement>> => {
         return results;
     });
 };
-
-type ApplicationProperties = {
-    content?: ReactElement
-};
-
-const index: FunctionComponent<ApplicationProperties> = ({content}) => {
-    return content || createElement('div', [], [
-        createElement('span', {}, 'Loading...')
-    ]);
-}
 
 export const setTitle = (value: string) => {
     document.title = value;
@@ -78,87 +66,70 @@ export const setContent = (content: ReactElement) => {
     });
 };
 
-export let navigationItems: Array<ReactElement>;
-
 const injectApplication = (properties: ApplicationProperties = {}) => {
-    render(index(properties), document.getElementById('application'));
+    render(Application(properties), document.getElementById('application'));
 }
 
-export const notFoundHandler = () => {
+const notFoundHandler = () => {
     setTitle('Not Found');
 
-    setContent(new Page({
-        content: new NotFound({}).render()
-    }).render());
+    setContent(
+        Page({
+            title: 'Page not found',
+            content: NotFound({})
+        })
+    );
 };
 
-export const homeRoute = register('/', [], () => {
+export const homeRoute = registerRoute('/', [], () => {
     setTitle('My Dashboard');
 
-    setContent(new PageWithNavigation({
-        content: new Dashboard({
-            // todo: get the token from the identity provider
-            token: '123456'
-        }).render()
-    }).render());
+    getUserToken().then(() => {
+        setContent(
+            PageWithNavigation({
+                title: 'My Applications',
+                content: Dashboard({
+                    // todo: get the token from the identity provider
+                    token: '123456'
+                })
+            })
+        );
+    });
 });
 
-export const loginRoute = register('login', ['id', 'foo'], ({id, foo}, state: {
-    callback?: () => void
-}) => {
-    console.log('loginRoute EXECUTOR', id.replace('5', '5'), foo, state);
+export let currentRoute: RouteInterface<any>;
 
-    if (getUserToken()) {
-        return redirect(homeRoute, {}, {});
+const currentRouteListeners: Array<CurrentRouteListener> = [];
+
+const setCurrentRoute = (route: RouteInterface<any> | undefined) => {
+    currentRoute = route;
+
+    for (let listener of currentRouteListeners) {
+        listener(currentRoute);
     }
 
-    setTitle('User login');
-
-    let callback = state.callback;
-
-    if (!callback) {
-        callback = () => {
-            redirect(homeRoute, {}, {});
-        };
-    }
-
-    setContent(new Login({
-        callback
-    }).render());
-});
-
-export const logoutRoute = register('logout', [], ({}, state: {
-    a: number
-}) => {
-    setUserToken(null);
-
-    redirect(homeRoute, {}, {});
-});
-
-export const userProfileRoute = register('profile', [], ({}) => {
-    setTitle('My Profile');
-
-    setContent(new PageWithNavigation({
-        content: null
-    }).render());
-});
-
-on((route) => {
     if (!route) {
         notFoundHandler();
     }
+}
+
+listen((route) => {
+    setCurrentRoute(route);
 });
 
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('DOM READY', navigationProvider());
+type CurrentRouteListener = (route: RouteInterface<any>) => void;
 
+export const on = (listener: CurrentRouteListener) => {
+    currentRouteListeners.push(listener);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
     navigationProvider().then((items) => {
         navigationItems = items;
 
-        console.log('ITEMS', items);
-
-        start();
         injectApplication();
+
+        setCurrentRoute(dispatch(getLocation()));
 
         for (let listener of listeners) {
             listener();

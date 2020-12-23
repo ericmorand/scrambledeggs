@@ -1,4 +1,4 @@
-@use "../../../../../themes/core/UX/viewport/index" as Viewport;
+@use "../../../../../themes/base/viewport/index" as Viewport;
 
 @mixin document-as-list-item {
   > .inner {

@@ -1,5 +1,7 @@
 import {TaskInterface} from "../../../../../src/modules/application/Model/task";
-import {d2} from "../../../../../src/lib/d-n";
+import {createDice} from "@nightlycommit/d-n";
+
+const d2 = createDice(2);
 
 export const createTask = (properties: Partial<TaskInterface> = {}): TaskInterface => {
     return {

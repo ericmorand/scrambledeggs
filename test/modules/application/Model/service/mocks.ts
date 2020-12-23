@@ -1,7 +1,9 @@
 import {ServiceInterface} from "../../../../../src/modules/application/Model/service";
 import {CategoryInterface} from "../../../../../src/application/Model/category";
 import {tax, workPermit} from "../../../../application/Model/category/mocks";
-import {d2} from "../../../../../src/lib/d-n";
+import {createDice} from "@nightlycommit/d-n";
+
+const d2 = createDice(2);
 
 export const createService: (properties: Partial<ServiceInterface>) => ServiceInterface = (properties) => {
     const categories: Array<CategoryInterface> = [

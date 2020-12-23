@@ -1,5 +1,5 @@
-@use "test/index";
-@use "src/viewport" as viewport;
+@use "test/demo";
+@use "src/themes/base/viewport" as Viewport;
 
 @mixin _match() {
   &:before {
@@ -16,19 +16,19 @@
   }
 
   &[data-viewport=small] {
-    @include viewport.small {
+    @include Viewport.small {
       @include _match;
     }
   }
 
   &[data-viewport=medium] {
-    @include viewport.medium {
+    @include Viewport.medium {
       @include _match;
     }
   }
 
   &[data-viewport=large] {
-    @include viewport.large {
+    @include Viewport.large {
       @include _match;
     }
   }

@@ -1,5 +1,5 @@
 import {EntityInterface} from "../../../application/Model/entity";
-import {UserInterface} from "../../../application/Model/user";
+import {UserInterface} from "../../user/Model/user";
 import {TaskInterface} from "./task";
 
 import type {DocumentInterface} from "../../document/Model/document";

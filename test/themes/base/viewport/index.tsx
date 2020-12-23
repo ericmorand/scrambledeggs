@@ -7,5 +7,5 @@ type ViewportTestProperties = {
 };
 
 export const ViewportTest: FunctionComponent<ViewportTestProperties> = ({viewport}) => {
-    return <div className="viewport-test" data-viewport={viewport}></div>;
+    return <div className="viewport-test" data-viewport={viewport}/>;
 };

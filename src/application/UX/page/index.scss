@@ -1,9 +1,21 @@
-@use "../../../themes/core/UX/viewport/index" as Viewport;
+@use "../../../themes/base/viewport/index" as Viewport;
 
 @mixin page() {
   height: 100vh;
   display: flex;
   flex-direction: column;
+
+  > h1 {
+    span {
+      & + span {
+        margin-left: 0.5em;
+      }
+
+      &:first-child {
+        font-weight: normal;
+      }
+    }
+  }
 
   > .content {
     background-color: wheat;

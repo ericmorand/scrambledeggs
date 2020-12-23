@@ -8,7 +8,7 @@ import {
     PENDING_STATUS
 } from "../../../../../src/modules/application/Model/application";
 import {taxDeclaration, workPermitRequest} from "../service/mocks";
-import {d2, createDice} from "../../../../../src/lib/d-n";
+import {createDice} from "@nightlycommit/d-n";
 
 export const createApplication = (properties: Partial<ApplicationInterface> & {
     status?: Status,
@@ -22,6 +22,7 @@ export const createApplication = (properties: Partial<ApplicationInterface> & {
         CANCELLED_STATUS
     ];
 
+    const d2 = createDice(2);
     const d5 = createDice(5);
 
     const status: Status = properties.status || statuses[d5() - 1];

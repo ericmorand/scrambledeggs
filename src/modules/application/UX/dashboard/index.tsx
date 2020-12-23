@@ -1,15 +1,17 @@
 import * as React from "react";
-import {Component} from "react";
+import {Component, createElement} from "react";
 import {PinBoard} from "../PinBoard";
 import {TaskInterface} from "../../Model/task";
 import {Table} from "../../../../application/UX/table";
 import {archivedApplicationsDataSource, nonArchivedApplicationsDataSource} from "../../Data/applications";
 
+import type {FunctionComponent} from "react";
+
 export type ApplicationDashboardProperties = {
     tasks: IterableIterator<TaskInterface>
 };
 
-export class ApplicationDashboard extends Component<ApplicationDashboardProperties> {
+export const ApplicationsDashboard: FunctionComponent<ApplicationDashboardProperties> = (properties) => createElement(class extends Component<ApplicationDashboardProperties> {
     render() {
         return <div className="application-dashboard">
             <div className="tasks">
@@ -35,4 +37,6 @@ export class ApplicationDashboard extends Component<ApplicationDashboardProperti
             </div>
         </div>;
     }
-}
+}, properties);
+
+ApplicationsDashboard.displayName = 'ApplicationsDashboard';

@@ -1,9 +1,0 @@
-@use "../route-item" as RouteItem;
-
-@mixin myProfile() {
-  @include RouteItem.routeItem;
-}
-
-.my-profile {
-  @include myProfile;
-}

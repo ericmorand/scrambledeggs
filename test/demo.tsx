@@ -31,6 +31,8 @@ const Demo: FunctionComponent<DemoProperties> = ({title, tests}) => {
 
 export const render = (title: string, tests: Array<TestDefinition>) => {
     document.addEventListener('DOMContentLoaded', () => {
+        document.title = title;
+
         const element = document.getElementById('application');
 
         if (element) {

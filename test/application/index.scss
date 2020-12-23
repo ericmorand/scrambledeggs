@@ -1,7 +1,7 @@
-@import "UX/page/with-navigation";
-@import "../modules/application/UX/application/as-list-item";
-@import "../../../src/modules/core/UX/document";
-@import "../../dashboard/UX/dashboard";
-@import "../../../src/modules/core/UX/not-found";
-@import "../../../src/modules/core/UX/page";
-@import "../../../src/modules/application/UX/navigation";
+@import "src/themes/base/document";
+@import "test/application/UX/dashboard";
+@import "test/application/UX/page/with-navigation";
+
+@import "test/modules/application/UX/dashboard";
+@import "test/modules/user/UI/logout";
+

@@ -11,6 +11,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@nightlycommit/d-n": "^1.0.0",
     "@types/browser-sync": "^2.26.1",
     "@types/browserify": "^12.0.36",
     "@types/fs-extra": "^9.0.3",
@@ -51,7 +52,9 @@
   },
   "dependencies": {
     "history": "^5.0.0",
+    "material-design-icons": "^3.0.1",
     "react": "^17.0.1",
-    "react-dom": "^17.0.1"
+    "react-dom": "^17.0.1",
+    "routee": "^0.2.0"
   }
 }

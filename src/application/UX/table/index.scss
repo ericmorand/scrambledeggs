@@ -17,6 +17,7 @@
       flex-grow: 1;
       flex-basis: 20%;
       box-sizing: border-box;
+      cursor: default;
 
       + div {
         border-left: Border.border();

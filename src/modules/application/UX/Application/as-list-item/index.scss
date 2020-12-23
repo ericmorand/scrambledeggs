@@ -1,5 +1,5 @@
 @use "../../../../../themes/core/UX/button/index" as Button;
-@use "../../../../../themes/core/UX/viewport/index" as Viewport;
+@use "../../../../../themes/base/viewport/index" as Viewport;
 @use "../../../../../themes/core/UX/badge/index" as Badge;
 
 @mixin as-list-item() {

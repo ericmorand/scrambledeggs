@@ -1,24 +1,25 @@
-import {register} from "../../lib/Router";
 import {List} from "../../application/UX/list";
 import {PageWithNavigation} from "../../application/UX/page/with-navigation";
 import {setContent, setTitle} from "../../application";
-import {MyMailbox} from "./UX/navigation/my-mailbox";
-
 import type {ModuleInterface} from "../../application";
-import {createElement} from "react";
+import {createURL, registerRoute} from "routee";
 
-export const mailboxRoute = register('mailbox', [], () => {
+export const mailboxRoute = registerRoute('mailbox', [], () => {
     setTitle('My Mailbox');
 
-    setContent(new PageWithNavigation({
-        content: new List({
+    setContent(PageWithNavigation({
+        title: 'My Mailbox',
+        content: List({
             items: []
-        }).render()
-    }).render());
+        })
+    }));
 });
 
 export const mailboxModule: ModuleInterface = {
-    navigationItems: Promise.resolve([
-        createElement(MyMailbox)
-    ])
+    navigationItems: Promise.resolve([{
+        icon: 'mail',
+        label: 'My Mailbox',
+        url: createURL(mailboxRoute, {}),
+        route: mailboxRoute
+    }])
 }

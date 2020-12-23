@@ -1,9 +1,13 @@
 import * as React from "react";
 
-import {Application} from "../index";
+import {Application, ApplicationProperties} from "../index";
 import {CANCELLED_STATUS, DONE_STATUS, DRAFT_STATUS, ONGOING_STATUS, PENDING_STATUS} from "../../../Model/application";
+import {createElement, FunctionComponent} from "react";
+import {createHref} from "../../../../../application/router";
+import {createURL} from "routee";
+import {applicationRoute} from "../../../index";
 
-export class ApplicationAsListItem extends Application {
+export const ApplicationAsListItem: FunctionComponent<ApplicationProperties> = (properties) => createElement(class extends Application {
     render() {
         let status: string;
         let humanReadableStatus: string;
@@ -46,12 +50,15 @@ export class ApplicationAsListItem extends Application {
             <div className={"status"}>
                 <div className="badge">{this.application.subStatus || humanReadableStatus}</div>
             </div>
-            <div className="date">{this.application.depositDate ? this.application.depositDate.toLocaleDateString() : null}</div>
+            <div
+                className="date">{this.application.depositDate ? this.application.depositDate.toLocaleDateString() : null}</div>
             <div className="tools">
-                <a href="#/application/5" target="_self" title="foo">
+                <a href={createHref(createURL(applicationRoute, {
+                    id: this.application.identifier
+                }))} target="_self" title="foo">
                     👁️
                 </a>
             </div>
         </div>;
     }
-}
+}, properties);

@@ -1,5 +1,5 @@
 import * as React from "react";
-import {Component, ReactElement} from "react";
+import {Component, createElement, FunctionComponent, ReactElement} from "react";
 
 import type {TaskInterface} from "../../Model/task";
 import {TaskAsCard} from "../Task/as-card";
@@ -9,7 +9,7 @@ export type PinBoardProperties = {
     tasks: Array<TaskInterface>;
 };
 
-export class PinBoard extends Component<PinBoardProperties> {
+export const PinBoard: FunctionComponent<PinBoardProperties> = (properties) => createElement(class extends Component<PinBoardProperties> {
     get pins(): Array<ReactElement> {
         return this.props.tasks.map((task) => {
             return <div className="pin">
@@ -28,4 +28,6 @@ export class PinBoard extends Component<PinBoardProperties> {
             </div>
         </div>;
     }
-}
+}, properties);
+
+PinBoard.displayName = 'PinBoard';

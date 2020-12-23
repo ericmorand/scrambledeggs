@@ -1,9 +1,0 @@
-@use "src/application/UX/navigation/route-item" as RouteItem;
-
-@mixin myDocuments() {
-  @include RouteItem.routeItem;
-}
-
-.my-documents {
-  @include myDocuments;
-}

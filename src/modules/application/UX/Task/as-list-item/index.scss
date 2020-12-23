@@ -1,5 +1,5 @@
 @use "../../../../../themes/core/UX/button/index" as button;
-@use "../../../../../themes/core/UX/viewport/index" as viewport;
+@use "../../../../../themes/base/viewport/index" as viewport;
 
 @mixin task-as-list-item() {
   border: solid 2px orangered;

@@ -1,36 +1,46 @@
-import {register} from "../../lib/Router";
 import {PageWithNavigation} from "../../application/UX/page/with-navigation";
-import {MyApplications} from "./UX/navigation/my-applications";
 import {setContent, setTitle} from "../../application";
 
 import type {ModuleInterface} from "../../application";
-import {ApplicationDashboard} from "./UX/dashboard";
-import {createElement} from "react";
-import {applicationsDataSource} from "./Data/applications";
 import {tasksDataSource} from "./Data/tasks";
-import {spinner} from "../../application/UX/spinner";
+import {Spinner} from "../../application/UX/spinner";
+import {createURL, registerRoute} from "routee";
+import {getUserToken} from "../user";
+import {ApplicationsDashboard} from "./UX/dashboard";
 
-export const applicationsRoute = register('applications', [], () => {
+export const applicationRoute = registerRoute('application', ['id'], ({id}) => {
+
+});
+
+export const applicationsRoute = registerRoute('applications', [], () => {
     setTitle('My Applications');
 
-    setContent(createElement(PageWithNavigation, {
-        content: createElement(spinner)
+    setContent(PageWithNavigation({
+        title: 'My Applications',
+        content: Spinner({})
     }));
 
     Promise.all([
         tasksDataSource.get({}, {})
     ]).then(([tasks]) => {
-        setContent(createElement(PageWithNavigation, {
-            content: createElement(ApplicationDashboard, {
-                tasks
-            })
-        }));
+        getUserToken().then(() => {
+            setContent(
+                PageWithNavigation({
+                    title: 'My Applications',
+                    content: ApplicationsDashboard({
+                        tasks
+                    })
+                })
+            );
+        });
     });
-
 });
 
 export const applicationModule: ModuleInterface = {
-    navigationItems: Promise.resolve([
-        createElement(MyApplications)
-    ])
+    navigationItems: Promise.resolve([{
+        url: createURL(applicationsRoute, {}),
+        icon: 'assignment',
+        route: applicationsRoute,
+        label: 'My Applications'
+    }])
 }

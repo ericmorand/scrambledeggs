@@ -1,9 +1,0 @@
-@use "src/application/UX/navigation/route-item" as RouteItem;
-
-@mixin myMailbox() {
-  @include RouteItem.routeItem;
-}
-
-.my-mailbox {
-  @include myMailbox;
-}

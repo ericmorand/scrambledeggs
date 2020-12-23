@@ -1,11 +1,11 @@
 import * as React from "react";
-import {Component} from "react";
+import {Component, createElement, FunctionComponent, ReactElement} from "react";
 
 export type DashboardProperties = {
     token: string
 };
 
-export class Dashboard extends Component<DashboardProperties> {
+export const Dashboard: FunctionComponent<DashboardProperties> = (properties) => createElement(class extends Component<DashboardProperties> {
     render() {
         const columns = [];
 
@@ -21,4 +21,6 @@ export class Dashboard extends Component<DashboardProperties> {
             </div>
         </div>;
     }
-}
+}, properties);
+
+Dashboard.displayName = 'Dashboard';

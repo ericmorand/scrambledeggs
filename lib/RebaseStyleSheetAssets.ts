@@ -33,12 +33,16 @@ export const rebaseStyleSheetAssetsFactory: StateWorkerFactory<Options> = (optio
                         try {
                             const type = lookup(rebasedPath);
 
-                            assets.push({
-                                name: rebasedPath,
-                                type: type || 'application/octet-stream',
-                                map: undefined,
-                                content: readFileSync(resolvedPath)
-                            });
+                            if (!assets.find((asset) => {
+                                return asset.name === rebasedPath;
+                            })) {
+                                assets.push({
+                                    name: rebasedPath,
+                                    type: type || 'application/octet-stream',
+                                    map: undefined,
+                                    content: readFileSync(resolvedPath)
+                                });
+                            }
                         } catch (err) {
                             // noop
                         }
@@ -58,8 +62,6 @@ export const rebaseStyleSheetAssetsFactory: StateWorkerFactory<Options> = (optio
             }
 
             return Promise.all(rebases).then((data) => {
-                console.log(data.concat(assets));
-
                 return {
                     name: stateName,
                     parent: state,

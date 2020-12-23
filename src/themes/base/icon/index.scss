@@ -1,0 +1,12 @@
+@use "src/themes/base/font" as Font;
+
+@font-face {
+  font-family: 'Icon';
+  font-style: normal;
+  font-weight: 400;
+  @include Font.font-face-src('../../../../node_modules/material-design-icons/iconfont/MaterialIcons-Regular');
+}
+
+@mixin icon {
+  font-family: Icon, sans-serif;
+}

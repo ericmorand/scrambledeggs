@@ -1,11 +1,13 @@
 import * as React from "react";
-import {Component, ReactElement} from "react";
+import {Component, createElement} from "react";
+
+import type {FunctionComponent, ReactElement} from "react";
 
 export type ListProperties = {
     items: Array<ReactElement>
 };
 
-export class List extends Component<ListProperties> {
+export const List: FunctionComponent<ListProperties> = (properties) => createElement(class extends Component<ListProperties> {
     render() {
         const items: Array<ReactElement> = [];
 
@@ -19,4 +21,4 @@ export class List extends Component<ListProperties> {
             {items}
         </div>;
     }
-}
+}, properties);

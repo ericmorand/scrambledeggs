@@ -1,9 +1,0 @@
-@use "../route-item" as RouteItem;
-
-@mixin myDashboard() {
-  @include RouteItem.routeItem;
-}
-
-.my-dashboard {
-  @include myDashboard;
-}

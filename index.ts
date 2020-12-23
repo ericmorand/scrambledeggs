@@ -66,6 +66,13 @@ const buildTypeScript = buildBundleFactory({
                 worker: (module, content, done) => {
                     done(Buffer.from('module.exports = require(\'./cjs/scheduler.production.min.js\');'));
                 }
+            }, {
+                filter: /node_modules\/routee\/dist\/index.js/,
+                worker: (module, content, done) => {
+                    const cjsContent = content.toString().replace(/export const /g, 'exports.');
+
+                    done(Buffer.from(cjsContent));
+                }
             }]
         }]
     ],
@@ -174,8 +181,6 @@ const processSassComponent: Worker<string, StateInterface> = (componentName) => 
             return Promise.resolve(state).then((state?) => {
                 if (state) {
                     for (let datum of state.data) {
-                        console.log(joinPath('www', component.name, datum.name));
-
                         unlinkSync(joinPath('www', component.name, datum.name));
                     }
                 }
@@ -202,7 +207,7 @@ const processSassComponent: Worker<string, StateInterface> = (componentName) => 
 
 const processTypeScriptComponent: Worker<string, StateInterface> = (componentName) => {
     return Promise.resolve(componentName).then((componentName) => {
-        const component = new Component(componentName, `test/${componentName}/demo.tsx`, 'text/x-typescript');
+        const component = new Component(componentName, `test/${componentName}/demo.ts`, 'text/x-typescript');
         const write = writeFactory(joinPath('www', component.name));
         const reload = reloadFactory({component, entry: 'index.js'});
         const watch = watchFactory(() => processTypeScriptComponent(componentName));

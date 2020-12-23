@@ -1,8 +1,8 @@
 import * as React from "react";
-import {Component, ReactElement} from "react";
+import {Component, createElement, FunctionComponent, ReactElement} from "react";
 import {ApplicationInterface} from "../../../modules/application/Model/application";
 import {ApplicationAsListItem} from "../../../modules/application/UX/Application/as-list-item";
-import {spinner} from "../spinner";
+import {Spinner} from "../spinner";
 import {ApplicationsDataSource} from "../../../modules/application/Data/applications";
 import {CategoryInterface} from "../../Model/category";
 
@@ -15,7 +15,7 @@ export type TableState = {
     busy: boolean
 };
 
-export class Table extends Component<TableProperties, TableState> {
+export const Table: FunctionComponent<TableProperties> = (properties) => createElement(class extends Component<TableProperties, TableState> {
     protected _categories: Set<CategoryInterface>;
 
     constructor(properties: TableProperties) {
@@ -30,8 +30,6 @@ export class Table extends Component<TableProperties, TableState> {
     }
 
     componentDidMount() {
-        console.log('DID MOUNT');
-
         this.setState({
             busy: true
         });
@@ -40,8 +38,6 @@ export class Table extends Component<TableProperties, TableState> {
             for (let application of applications) {
                 this._categories.add(application.service.category);
             }
-
-            console.log('FETCH DONE', this._categories);
 
             this.applications = applications;
         });
@@ -112,7 +108,9 @@ export class Table extends Component<TableProperties, TableState> {
                     <div className="no-items">No items</div>
                 }
             </div>
-            {this.state.busy ? <div className="loader">{spinner({})}</div> : null}
+            {this.state.busy ? <div className="loader">{Spinner({})}</div> : null}
         </div>;
     }
-}
+}, properties);
+
+Table.displayName = 'Table Function Component';
